@@ -1,9 +1,7 @@
-package main;
-
-import epic.task.EpicTask;
+import task.EpicTask;
 import manager.Manager;
-import subtask.SubTask;
-import taskstatus.TaskStatus;
+import task.SubTask;
+import task.TaskStatus;
 
 public class Main {
     public static void main(String[] args) {

@@ -1,20 +1,14 @@
 package task;
 
-import taskstatus.TaskStatus;
 import java.util.UUID;
 
 public class Task {
-    private UUID id;
-    private String name;
-    private String description;
-    private TaskStatus status;
-
-    public Task() {
-        this.id = UUID.randomUUID();
-    }
+    protected long id;
+    protected String name;
+    protected String description;
+    protected TaskStatus status;
 
     public Task(String name, String description) {
-        this.id = UUID.randomUUID();
         this.name = name;
         this.description = description;
         this.status = TaskStatus.NEW;
@@ -24,11 +18,11 @@ public class Task {
         return name;
     }
 
-    public UUID getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(long id) {
         this.id = id;
     }
 

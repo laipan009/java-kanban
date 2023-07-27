@@ -1,38 +1,43 @@
 package manager;
 
-import epic.task.EpicTask;
-import subtask.SubTask;
+import task.EpicTask;
+import task.SubTask;
 import task.Task;
-import taskstatus.TaskStatus;
+import task.TaskStatus;
+
 import java.util.*;
 
 public class Manager {
-    private Map<UUID, Task> tasks = new HashMap<>();
-    private Map<UUID, EpicTask> epicTasks = new HashMap<>();
-    private Map<UUID, SubTask> subTasks = new HashMap<>();
+    private long idGenerator = 1;
+    private Map<Long, Task> tasks = new HashMap<>();
+    private Map<Long, EpicTask> epicTasks = new HashMap<>();
+    private Map<Long, SubTask> subTasks = new HashMap<>();
 
-
-    public Map<UUID, EpicTask> getEpicTasks() {
+    public Map<Long, EpicTask> getEpicTasks() {
         return epicTasks;
     }
 
-    public void setEpicTasks(Map<UUID, EpicTask> epicTasks) {
+    public void setEpicTasks(Map<Long, EpicTask> epicTasks) {
         this.epicTasks = epicTasks;
     }
 
-    public Map<UUID, SubTask> getSubTasks() {
+    public Map<Long, SubTask> getSubTasks() {
         return subTasks;
     }
 
-    public void setSubTasks(Map<UUID, SubTask> subTasks) {
+    public void setSubTasks(Map<Long, SubTask> subTasks) {
         this.subTasks = subTasks;
     }
 
-    public Map<UUID, Task> getTasks() {
+    public Map<Long, Task> getTasks() {
         return tasks;
     }
 
-    public void setTasks(Map<UUID, Task> tasks) {
+    public long generateId() {
+        return idGenerator++;
+    }
+
+    public void setTasks(Map<Long, Task> tasks) {
         this.tasks = tasks;
     }
 
@@ -42,10 +47,10 @@ public class Manager {
      * @param epicId - идентификатор EpicTask по которому нужно вернуть subTasks.
      * @return - список subTasks с полем UUID idEpicTask равным epicId.
      */
-    public List<SubTask> getSubTasksByEpicId(UUID epicId) {
+    public List<SubTask> getSubTasksByEpicId(long epicId) {
         List<SubTask> result = new ArrayList<>();
         if (epicTasks != null && epicTasks.containsKey(epicId)) {
-            for (UUID idSubtask : subTasks.keySet()) {
+            for (long idSubtask : subTasks.keySet()) {
                 if (subTasks.get(idSubtask).getIdEpicTask() == epicId) {
                     result.add(subTasks.get(idSubtask));
                 }
@@ -84,7 +89,7 @@ public class Manager {
      *
      * @param id - объекта, который нужно найти и вернуть.
      */
-    public Optional<Task> getByIdTask(UUID id) {
+    public Optional<Task> getByIdTask(long id) {
         return Optional.ofNullable(tasks.get(id));
     }
 
@@ -93,7 +98,7 @@ public class Manager {
      *
      * @param id - объекта, который нужно найти и вернуть.
      */
-    public Optional<SubTask> getByIdSubTask(UUID id) {
+    public Optional<SubTask> getByIdSubTask(long id) {
         return Optional.ofNullable(subTasks.get(id));
     }
 
@@ -102,25 +107,27 @@ public class Manager {
      *
      * @param id - объекта, который нужно найти и вернуть.
      */
-    public Optional<EpicTask> getByIdEpicTask(UUID id) {
+    public Optional<EpicTask> getByIdEpicTask(long id) {
         return Optional.ofNullable(epicTasks.get(id));
     }
 
     /**
-     * Добавляет в tasks значение task по ключу Id.
+     * Генерирует для task id и добавляет в tasks значение task по ключу Id.
      *
      * @param task
      */
     public void addNewTask(Task task) {
+        task.setId(generateId());
         tasks.put(task.getId(), task);
     }
 
     /**
-     * Добавляет в epicTasks значение epicTask по ключу Id.
+     * Генерирует для epicTask id и добавляет в epicTasks значение task по ключу Id.
      *
      * @param epicTask
      */
     public void addNewEpicTask(EpicTask epicTask) {
+        epicTask.setId(generateId());
         epicTasks.put(epicTask.getId(), epicTask);
     }
 
@@ -130,10 +137,10 @@ public class Manager {
      * @param subTask
      */
     public void addNewSubTask(SubTask subTask) {
+        subTask.setId(generateId());
         subTasks.put(subTask.getId(), subTask);
         epicTasks.get(subTask.getIdEpicTask()).addSubTask(subTask.getId());
     }
-
 
     /**
      * Проверяет на null tasks, ищет объект с равным Id и найденный объект заменяет на updatedTask.
@@ -145,7 +152,7 @@ public class Manager {
             tasks.put(updatedTask.getId(), updatedTask);
             System.out.println("Задача обновлена");
         } else {
-            System.out.println("Такой задачи нет");
+            System.out.println("Такой задачи нет"); // TODO к сожалению не понял что значит "Логичнее тогда логировать id"
         }
     }
 
@@ -179,14 +186,20 @@ public class Manager {
         }
     }
 
+    /**
+     * Проверяет на null epicTasks, считает статусы в subTasks, которые соответствуют epicTask и изменяет статус
+     * объекта в зависимости от условий.
+     *
+     * @param epicTask - объект в котором нужно проверить статус subTasks и изменить статус самого объекта.
+     */
     public void checkStatusEpicTask(EpicTask epicTask) {
         if (epicTask != null) {
-            List<UUID> listSubTasks = epicTask.getSubTasks();
+            List<Long> listSubTasks = epicTask.getSubTasksId();
             int doneStatus = 0;
             int inProgressStatus = 0;
             int newStatus = 0;
 
-            for (UUID idSubTask : listSubTasks) {
+            for (Long idSubTask : listSubTasks) {
                 TaskStatus status = subTasks.get(idSubTask).getStatus();
                 if (status == TaskStatus.NEW) {
                     newStatus++;
@@ -214,7 +227,7 @@ public class Manager {
      *
      * @param id - объекта, который нужно найти и удалить из tasks.
      */
-    public void deleteByIdTask(UUID id) {
+    public void deleteByIdTask(long id) {
         if (tasks != null && tasks.containsKey(id)) {
             tasks.remove(id);
             System.out.println("Task deleted by id  = " + id);
@@ -228,7 +241,7 @@ public class Manager {
      *
      * @param id - объекта, который нужно найти и удалить из subTasks.
      */
-    public void deleteByIdSubTask(UUID id) {
+    public void deleteByIdSubTask(long id) {
         if (subTasks != null && subTasks.containsKey(id)) {
             subTasks.remove(id);
             System.out.println("Task deleted by id  = " + id);
@@ -243,13 +256,13 @@ public class Manager {
      *
      * @param id - объекта, который нужно найти и удалить из epicTasks.
      */
-    public void deleteByIdEpicTasks(UUID id) {
+    public void deleteByIdEpicTasks(long id) {
         if (epicTasks != null && epicTasks.containsKey(id)) {
-            List<UUID> listSubTasks = epicTasks.get(id).getSubTasks();
+            List<Long> listSubTasks = epicTasks.get(id).getSubTasksId();
             epicTasks.remove(id);
 
             if (listSubTasks != null) {
-                for (UUID idSubTask : listSubTasks) {
+                for (Long idSubTask : listSubTasks) {
                     subTasks.remove(idSubTask);
                 }
             }
