@@ -1,9 +1,6 @@
 package task;
 
-import java.util.UUID;
-
 public class SubTask extends Task {
-
     private long idEpicTask;
 
     public SubTask(String name, String description, long  idEpicTask) {
@@ -17,5 +14,16 @@ public class SubTask extends Task {
 
     public void setIdEpicTask(long  idEpicTask) {
         this.idEpicTask = idEpicTask;
+    }
+
+    @Override
+    public String toString() {
+        return "SubTask{" +
+                "idEpicTask=" + idEpicTask +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                '}';
     }
 }

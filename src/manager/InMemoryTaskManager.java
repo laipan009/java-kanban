@@ -3,40 +3,47 @@ package manager;
 import task.EpicTask;
 import task.SubTask;
 import task.Task;
-import task.TaskStatus;
+import taskstatus.TaskStatus;
 
 import java.util.*;
 
-public class Manager {
+public class InMemoryTaskManager implements TaskManager {
     private long idGenerator = 1;
     private Map<Long, Task> tasks = new HashMap<>();
     private Map<Long, EpicTask> epicTasks = new HashMap<>();
     private Map<Long, SubTask> subTasks = new HashMap<>();
 
+    @Override
     public Map<Long, EpicTask> getEpicTasks() {
         return epicTasks;
     }
 
+    @Override
     public void setEpicTasks(Map<Long, EpicTask> epicTasks) {
         this.epicTasks = epicTasks;
     }
 
+    @Override
     public Map<Long, SubTask> getSubTasks() {
         return subTasks;
     }
 
+    @Override
     public void setSubTasks(Map<Long, SubTask> subTasks) {
         this.subTasks = subTasks;
     }
 
+    @Override
     public Map<Long, Task> getTasks() {
         return tasks;
     }
 
+    @Override
     public long generateId() {
         return idGenerator++;
     }
 
+    @Override
     public void setTasks(Map<Long, Task> tasks) {
         this.tasks = tasks;
     }
@@ -47,6 +54,7 @@ public class Manager {
      * @param epicId - идентификатор EpicTask по которому нужно вернуть subTasks.
      * @return - список subTasks с полем UUID idEpicTask равным epicId.
      */
+    @Override
     public List<SubTask> getSubTasksByEpicId(long epicId) {
         List<SubTask> result = new ArrayList<>();
         if (epicTasks != null && epicTasks.containsKey(epicId)) {
@@ -62,6 +70,7 @@ public class Manager {
     /**
      * Удаляет все элементы tasks.
      */
+    @Override
     public void removeAllTasks() {
         tasks.clear();
         System.out.println("Задачи удалены");
@@ -70,6 +79,7 @@ public class Manager {
     /**
      * Удаляет все элементы subTasks.
      */
+    @Override
     public void removeAllSubTasks() {
         subTasks.clear();
         System.out.println("Задачи удалены");
@@ -78,6 +88,7 @@ public class Manager {
     /**
      * Удаляет все элементы epicTask и соответственно subTasks.
      */
+    @Override
     public void removeAllEpicTasks() {
         epicTasks.clear();
         subTasks.clear();
@@ -86,10 +97,12 @@ public class Manager {
 
     /**
      * Ищет по Id объект, при нахождении в tasks возвращает.
+     * Вызывает метод add у объекта типа InMemoryHistoryManager.
      *
      * @param id - объекта, который нужно найти и вернуть.
      */
-    public Optional<Task> getByIdTask(long id) {
+    @Override
+    public Optional<Task> getById(long id) {
         return Optional.ofNullable(tasks.get(id));
     }
 
@@ -98,6 +111,7 @@ public class Manager {
      *
      * @param id - объекта, который нужно найти и вернуть.
      */
+    @Override
     public Optional<SubTask> getByIdSubTask(long id) {
         return Optional.ofNullable(subTasks.get(id));
     }
@@ -107,6 +121,7 @@ public class Manager {
      *
      * @param id - объекта, который нужно найти и вернуть.
      */
+    @Override
     public Optional<EpicTask> getByIdEpicTask(long id) {
         return Optional.ofNullable(epicTasks.get(id));
     }
@@ -116,6 +131,7 @@ public class Manager {
      *
      * @param task
      */
+    @Override
     public void addNewTask(Task task) {
         task.setId(generateId());
         tasks.put(task.getId(), task);
@@ -126,6 +142,7 @@ public class Manager {
      *
      * @param epicTask
      */
+    @Override
     public void addNewEpicTask(EpicTask epicTask) {
         epicTask.setId(generateId());
         epicTasks.put(epicTask.getId(), epicTask);
@@ -136,6 +153,7 @@ public class Manager {
      *
      * @param subTask
      */
+    @Override
     public void addNewSubTask(SubTask subTask) {
         subTask.setId(generateId());
         subTasks.put(subTask.getId(), subTask);
@@ -147,12 +165,13 @@ public class Manager {
      *
      * @param updatedTask - обновленный объект, который нужно вставить при совпадении Id вместо найденного в tasks.
      */
+    @Override
     public void updateTask(Task updatedTask) {
         if (tasks != null && tasks.containsKey(updatedTask.getId())) {
             tasks.put(updatedTask.getId(), updatedTask);
             System.out.println("Задача обновлена");
         } else {
-            System.out.println("Такой задачи нет"); // TODO к сожалению не понял что значит "Логичнее тогда логировать id"
+            System.out.println("Такой задачи нет");
         }
     }
 
@@ -162,6 +181,7 @@ public class Manager {
      *
      * @param updatedTask - обновленный объект, который нужно вставить при совпадении Id вместо найденного в tasks.
      */
+    @Override
     public void updateSubTask(SubTask updatedTask) {
         if (subTasks != null && subTasks.containsKey(updatedTask.getId())) {
             subTasks.put(updatedTask.getId(), updatedTask);
@@ -177,6 +197,7 @@ public class Manager {
      *
      * @param updatedTask - обновленный объект, который нужно вставить при совпадении Id вместо найденного в tasks.
      */
+    @Override
     public void updateEpicTask(EpicTask updatedTask) {
         if (epicTasks != null && epicTasks.containsKey(updatedTask.getId())) {
             epicTasks.put(updatedTask.getId(), updatedTask);
@@ -192,6 +213,7 @@ public class Manager {
      *
      * @param epicTask - объект в котором нужно проверить статус subTasks и изменить статус самого объекта.
      */
+    @Override
     public void checkStatusEpicTask(EpicTask epicTask) {
         if (epicTask != null) {
             List<Long> listSubTasks = epicTask.getSubTasksId();
@@ -216,10 +238,7 @@ public class Manager {
             } else {
                 epicTask.setStatus(TaskStatus.IN_PROGRESS);
             }
-
         }
-
-
     }
 
     /**
@@ -227,6 +246,7 @@ public class Manager {
      *
      * @param id - объекта, который нужно найти и удалить из tasks.
      */
+    @Override
     public void deleteByIdTask(long id) {
         if (tasks != null && tasks.containsKey(id)) {
             tasks.remove(id);
@@ -241,6 +261,7 @@ public class Manager {
      *
      * @param id - объекта, который нужно найти и удалить из subTasks.
      */
+    @Override
     public void deleteByIdSubTask(long id) {
         if (subTasks != null && subTasks.containsKey(id)) {
             subTasks.remove(id);
@@ -256,6 +277,7 @@ public class Manager {
      *
      * @param id - объекта, который нужно найти и удалить из epicTasks.
      */
+    @Override
     public void deleteByIdEpicTasks(long id) {
         if (epicTasks != null && epicTasks.containsKey(id)) {
             List<Long> listSubTasks = epicTasks.get(id).getSubTasksId();

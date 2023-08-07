@@ -1,6 +1,6 @@
 package task;
 
-import java.util.UUID;
+import taskstatus.TaskStatus;
 
 public class Task {
     protected long id;

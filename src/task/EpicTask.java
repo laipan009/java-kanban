@@ -21,5 +21,14 @@ public class EpicTask extends Task {
         subTasksId.add(idSubtask);
     }
 
-
+    @Override
+    public String toString() {
+        return "EpicTask{" +
+                "subTasksId=" + subTasksId +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                '}';
+    }
 }
