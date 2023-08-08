@@ -2,7 +2,7 @@ import manager.InMemoryHistoryManager;
 import task.EpicTask;
 import manager.InMemoryTaskManager;
 import task.SubTask;
-import taskstatus.TaskStatus;
+import task.TaskStatus;
 
 import java.util.Optional;
 
@@ -38,7 +38,7 @@ public class Main {
 
         InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
 
-        System.out.println(historyManager.getHistory().get());
+        System.out.println(historyManager.getHistory());
 
         Optional<EpicTask> epicTask22 = inMemoryTaskManager.getByIdEpicTask(epicTask2.getId());
         historyManager.add(epicTask2);
@@ -51,6 +51,6 @@ public class Main {
         Optional<SubTask> subTaskTask22 = inMemoryTaskManager.getByIdSubTask(subTask2.getId());
         historyManager.add(subTask2);
 
-        System.out.println(historyManager.getHistory().get());
+        System.out.println(historyManager.getHistory());
     }
 }

@@ -4,7 +4,6 @@ import task.Task;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class InMemoryHistoryManager implements HistoryManager {
     private List<Task> lastSeenTasks = new ArrayList<>();
@@ -13,8 +12,8 @@ public class InMemoryHistoryManager implements HistoryManager {
      * @return возвращает поле lastSeenTasks содержащий последние 10 просмотренных задач.
      */
     @Override
-    public Optional<List<Task>> getHistory() {
-        return Optional.ofNullable(lastSeenTasks);
+    public List<Task> getHistory() {
+        return lastSeenTasks;
     }
 
     /**
@@ -25,7 +24,8 @@ public class InMemoryHistoryManager implements HistoryManager {
      */
     @Override
     public void add(Task task) {
-        if (lastSeenTasks.size() == 10) {
+        int countLastSeenTasks = 10;
+        if (lastSeenTasks.size() == countLastSeenTasks) {
             lastSeenTasks.remove(0);
         }
         lastSeenTasks.add(task);

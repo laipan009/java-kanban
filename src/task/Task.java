@@ -1,7 +1,5 @@
 package task;
 
-import taskstatus.TaskStatus;
-
 public class Task {
     protected long id;
     protected String name;
