@@ -12,6 +12,7 @@ public class InMemoryTaskManager implements TaskManager {
     private Map<Long, Task> tasks = new HashMap<>();
     private Map<Long, EpicTask> epicTasks = new HashMap<>();
     private Map<Long, SubTask> subTasks = new HashMap<>();
+    InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
 
     @Override
     public Map<Long, EpicTask> getEpicTasks() {
@@ -250,6 +251,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteByIdTask(long id) {
         if (tasks != null && tasks.containsKey(id)) {
             tasks.remove(id);
+            historyManager.remove(id);
             System.out.println("Task deleted by id  = " + id);
         } else {
             System.out.println("Такой задачи нет");
@@ -265,6 +267,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteByIdSubTask(long id) {
         if (subTasks != null && subTasks.containsKey(id)) {
             subTasks.remove(id);
+            historyManager.remove(id);
             System.out.println("Task deleted by id  = " + id);
         } else {
             System.out.println("Такой задачи нет");
@@ -282,6 +285,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (epicTasks != null && epicTasks.containsKey(id)) {
             List<Long> listSubTasks = epicTasks.get(id).getSubTasksId();
             epicTasks.remove(id);
+            historyManager.remove(id);
 
             if (listSubTasks != null) {
                 for (Long idSubTask : listSubTasks) {

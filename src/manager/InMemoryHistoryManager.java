@@ -30,4 +30,15 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
         lastSeenTasks.add(task);
     }
+    @Override
+    public void remove(long id) {
+        if (!lastSeenTasks.isEmpty()) {
+            for (int i = 0; i < lastSeenTasks.size(); i++) {
+                if(lastSeenTasks.get(i).getId() == id) {
+                    lastSeenTasks.remove(i);
+                }
+            }
+        }
+
+    }
 }

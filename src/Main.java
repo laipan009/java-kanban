@@ -12,19 +12,24 @@ public class Main {
         EpicTask epicTask1 = new EpicTask("Присед 170 кг", "В рамках этой задачи мы присядем 170 кг");
         inMemoryTaskManager.addNewEpicTask(epicTask1);
 
-        SubTask subTask1 = new SubTask("Присед 120 кг", "В рамках этой задачи мы присядем 120 кг", epicTask1.getId());
+        SubTask subTask1 = new SubTask("Присед 120 кг", "В рамках этой задачи мы присядем 120 кг",
+                epicTask1.getId());
         inMemoryTaskManager.addNewSubTask(subTask1);
-        SubTask subTask2 = new SubTask("Присед 140 кг", "В рамках этой задачи мы присядем 140 кг", epicTask1.getId());
+        SubTask subTask2 = new SubTask("Присед 140 кг", "В рамках этой задачи мы присядем 140 кг",
+                epicTask1.getId());
         inMemoryTaskManager.addNewSubTask(subTask2);
 
         EpicTask epicTask2 = new EpicTask("Жим 140 кг", "В рамках этой задачи мы выжмем 140 кг");
         inMemoryTaskManager.addNewEpicTask(epicTask2);
-        SubTask subTask3 = new SubTask("Жим 110 кг", "В рамках этой задачи мы выжмем 140 кг", epicTask2.getId());
+        SubTask subTask3 = new SubTask("Жим 110 кг", "В рамках этой задачи мы выжмем 140 кг",
+                epicTask2.getId());
         inMemoryTaskManager.addNewSubTask(subTask3);
 
         System.out.println(inMemoryTaskManager.getEpicTasks());
 
         subTask3.setStatus(TaskStatus.DONE);
+
+
         inMemoryTaskManager.updateSubTask(subTask3);
 
         subTask1.setStatus(TaskStatus.IN_PROGRESS);
