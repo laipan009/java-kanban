@@ -1,4 +1,4 @@
-package manager;
+package manager.api;
 
 import task.EpicTask;
 import task.SubTask;
@@ -7,7 +7,6 @@ import task.Task;
 import java.util.*;
 
 public interface TaskManager {
-
     Map<Long, EpicTask> getEpicTasks();
 
     void setEpicTasks(Map<Long, EpicTask> epicTasks);

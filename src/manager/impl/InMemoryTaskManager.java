@@ -1,5 +1,7 @@
-package manager;
+package manager.impl;
 
+import manager.api.TaskManager;
+import manager.impl.InMemoryHistoryManager;
 import task.EpicTask;
 import task.SubTask;
 import task.Task;
@@ -12,7 +14,7 @@ public class InMemoryTaskManager implements TaskManager {
     private Map<Long, Task> tasks = new HashMap<>();
     private Map<Long, EpicTask> epicTasks = new HashMap<>();
     private Map<Long, SubTask> subTasks = new HashMap<>();
-    InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
+    public InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
 
     @Override
     public Map<Long, EpicTask> getEpicTasks() {
@@ -104,26 +106,38 @@ public class InMemoryTaskManager implements TaskManager {
      */
     @Override
     public Optional<Task> getById(long id) {
+        if (tasks.get(id) != null) {
+            historyManager.add(tasks.get(id));
+        }
+
         return Optional.ofNullable(tasks.get(id));
     }
 
     /**
      * Ищет по Id объект, при нахождении в subTasks возвращает.
+     * Вызывает метод add у объекта типа InMemoryHistoryManager.
      *
      * @param id - объекта, который нужно найти и вернуть.
      */
     @Override
     public Optional<SubTask> getByIdSubTask(long id) {
+        if (subTasks.get(id) != null) {
+            historyManager.add(subTasks.get(id));
+        }
         return Optional.ofNullable(subTasks.get(id));
     }
 
     /**
      * Ищет по Id объект, при нахождении в epicTasks возвращает.
+     * Вызывает метод add у объекта типа InMemoryHistoryManager.
      *
      * @param id - объекта, который нужно найти и вернуть.
      */
     @Override
     public Optional<EpicTask> getByIdEpicTask(long id) {
+        if (epicTasks.get(id) != null) {
+            historyManager.add(epicTasks.get(id));
+        }
         return Optional.ofNullable(epicTasks.get(id));
     }
 
@@ -289,7 +303,7 @@ public class InMemoryTaskManager implements TaskManager {
 
             if (listSubTasks != null) {
                 for (Long idSubTask : listSubTasks) {
-                    subTasks.remove(idSubTask);
+                    deleteByIdSubTask(idSubTask);
                 }
             }
 
