@@ -1,5 +1,6 @@
 package manager;
 
+import manager.api.HistoryManager;
 import manager.api.TaskManager;
 import manager.impl.InMemoryHistoryManager;
 import manager.impl.InMemoryTaskManager;
@@ -9,7 +10,7 @@ public class Managers {
         return new InMemoryTaskManager();
     }
 
-    public static InMemoryHistoryManager getDefaultHistory() {
+    public static HistoryManager getDefaultHistory() {
         return new InMemoryHistoryManager();
     }
 }
