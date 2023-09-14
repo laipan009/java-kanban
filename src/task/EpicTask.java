@@ -22,6 +22,11 @@ public class EpicTask extends Task {
     }
 
     @Override
+    public TaskType getTaskType() {
+        return TaskType.EPICTASK;
+    }
+
+    @Override
     public String toString() {
         return "EpicTask{" +
                 "subTasksId=" + subTasksId +

@@ -17,8 +17,8 @@ public class CSVMapper {
     /**
      * Преобразует объект типа Task в строку в формате CSV.
      *
-     * @param task
-     * @return
+     * @param task объект, который будет преобразовываться в строку.
+     * @return строку в формате CSV.
      */
     public static String taskToString(Task task) {
         String id = String.valueOf(task.getId());
@@ -37,7 +37,7 @@ public class CSVMapper {
      * Преобразует историю просмотра задач в строку в формате CSV.
      *
      * @param historyTasks лист содержащий историю просмотренных задач.
-     * @return
+     * @return строку в формате CSV.
      */
     public static String getHistoryToString(List<Task> historyTasks) {
         StringBuilder resultString = new StringBuilder();

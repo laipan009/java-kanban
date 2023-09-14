@@ -10,9 +10,13 @@ import java.io.IOException;
 import java.util.*;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
-    String pathToFile;
+    private String pathToFile;
 
     public FileBackedTasksManager(String pathToFile) {
+        this.pathToFile = pathToFile;
+    }
+
+    public void setPathToFile(String pathToFile) {
         this.pathToFile = pathToFile;
     }
 
@@ -26,7 +30,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
      * @param file содержащий данные для восстановления.
      * @return восстановленный из файла объект FileBackedTasksManager.
      */
-    static FileBackedTasksManager loadFromFile(File file) {
+    public static FileBackedTasksManager loadFromFile(File file) {
         FileBackedTasksManager fBTManager = new FileBackedTasksManager(file.getPath());
         List<String> list = CSVMapper.getLinesFromFile(fBTManager.getPathToFile());
         List<Long> historyList = CSVMapper.historyFromString(list);
@@ -64,7 +68,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             }
             writer.write("\n" + CSVMapper.getHistoryToString(historyManager.getHistory()));
         } catch (IOException e) {
-            throw new ManagerSaveException();
+            throw new ManagerSaveException("Something is wrong");
         }
     }
 
@@ -89,14 +93,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 System.out.println("Object might not find");
             } else {
                 var task = taskInOpt.get();
-                switch (task.getClass().getSimpleName()) {
-                    case "Task":
+                switch (task.getTaskType()) {
+                    case TASK:
                         tasks.put(task.getId(), task);
                         break;
-                    case "EpicTask":
+                    case EPICTASK:
                         epicTasks.put(task.getId(), (EpicTask) task);
                         break;
-                    case "SubTask":
+                    case SUBTASK:
                         subTasks.put(task.getId(), (SubTask) task);
                         break;
                 }
@@ -111,9 +115,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
      * Мёрджит Set'ы с Id задач, находит максимальную и устанавливает в поле idGenerator.
      * Вызывается после restoreTasksByType, что бы генерация Id продолжилась с последней.
      *
-     * @param epicTasks
-     * @param subTasks
-     * @param tasks
+     * @param epicTasks поле содержащее задачи типа EpicTask.
+     * @param subTasks поле содержащее задачи типа SubTask.
+     * @param tasks поле содержащее задачи типа Task.
      */
     private void setNewIdValue(Map<Long, EpicTask> epicTasks, Map<Long, SubTask> subTasks, Map<Long, Task> tasks) {
         TreeSet<Long> tasksIds = new TreeSet<>(tasks.keySet());
@@ -130,8 +134,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     /**
      * Заполняет поле idSubTask у epicTask. Вызывается после метода restoreTasksByType.
      *
-     * @param epicTasks
-     * @param subTasks
+     * @param epicTasks поле содержащее задачи типа EpicTask.
+     * @param subTasks поле содержащее задачи типа SubTask.
      */
     public static void combineEpicAndSubTasks(Map<Long, EpicTask> epicTasks, Map<Long, SubTask> subTasks) {
         for (Long idSubTask : subTasks.keySet()) {
@@ -145,7 +149,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     /**
      * Восстанавливает историю просмотра задач.
      *
-     * @param historyList       лист задач полученный из метода CSVLoader.historyFromString.
+     * @param historyList лист задач полученный из метода CSVLoader.historyFromString.
      * @param fileBackedManager объект полученный из метода loadFromFile.
      */
     public static void restoreHistory(List<Long> historyList, FileBackedTasksManager fileBackedManager) {
@@ -218,70 +222,5 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     public void deleteByIdEpicTasks(long id) {
         super.deleteByIdEpicTasks(id);
         save();
-    }
-
-    public static void main(String[] args) {
-        String path = "C:\\Users\\superuser\\IdeaProjects\\java-kanban2\\test.csv";
-        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(path);
-
-        EpicTask epicTask1 = new EpicTask("Присед 170 кг", "В  рамках этой задачи мы присядем 170 кг");
-        fileBackedTasksManager.addNewEpicTask(epicTask1);
-
-        SubTask subTask1 = new SubTask("Присед 120 кг", "В рамках этой задачи мы присядем 120 кг",
-                epicTask1.getId());
-        fileBackedTasksManager.addNewSubTask(subTask1);
-
-        SubTask subTask2 = new SubTask("Присед 140 кг", "В рамках этой задачи мы присядем 140 кг",
-                epicTask1.getId());
-        fileBackedTasksManager.addNewSubTask(subTask2);
-
-        SubTask subTask3 = new SubTask("Присед 170 кг", "В рамках этой задачи мы присядем 170 кг",
-                epicTask1.getId());
-        fileBackedTasksManager.addNewSubTask(subTask3);
-
-        EpicTask epicTask2 = new EpicTask("Жим 140 кг", "В рамках этой задачи мы выжмем 140 кг");
-        fileBackedTasksManager.addNewEpicTask(epicTask2);
-
-        System.out.println(fileBackedTasksManager.historyManager.getHistory());
-        System.out.println(fileBackedTasksManager.historyManager.getHistory().size());
-
-        Optional<EpicTask> ep1 = fileBackedTasksManager.getByIdEpicTask(epicTask1.getId());
-        fileBackedTasksManager.save();
-
-        Optional<EpicTask> ep12 = fileBackedTasksManager.getByIdEpicTask(epicTask1.getId());
-        fileBackedTasksManager.save();
-
-        Optional<SubTask> st1 = fileBackedTasksManager.getByIdSubTask(subTask1.getId());
-        fileBackedTasksManager.save();
-
-        Optional<SubTask> st2 = fileBackedTasksManager.getByIdSubTask(subTask2.getId());
-        fileBackedTasksManager.save();
-
-        Optional<SubTask> st3 = fileBackedTasksManager.getByIdSubTask(subTask3.getId());
-        fileBackedTasksManager.save();
-
-        Optional<EpicTask> ep2 = fileBackedTasksManager.getByIdEpicTask(epicTask2.getId());
-        fileBackedTasksManager.save();
-
-        System.out.println(fileBackedTasksManager.historyManager.getHistory());
-        System.out.println(fileBackedTasksManager.historyManager.getHistory().size());
-
-        fileBackedTasksManager.deleteByIdEpicTasks(epicTask1.getId());
-
-        System.out.println(fileBackedTasksManager.historyManager.getHistory());
-        System.out.println(fileBackedTasksManager.historyManager.getHistory().size());
-
-        System.out.println(fileBackedTasksManager.getTasks().size());
-        System.out.println(fileBackedTasksManager.getEpicTasks().size());
-        System.out.println(fileBackedTasksManager.getSubTasks().size());
-
-
-        FileBackedTasksManager fBTManager = FileBackedTasksManager.loadFromFile(new File(path));
-
-        System.out.println(fBTManager.getTasks().size());
-        System.out.println(fBTManager.getEpicTasks().size());
-        System.out.println(fBTManager.getSubTasks().size());
-        System.out.println(fBTManager.historyManager.getHistory());
-
     }
 }
