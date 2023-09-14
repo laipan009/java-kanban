@@ -1,7 +1,7 @@
 package manager.impl;
 
 import manager.api.TaskManager;
-import manager.impl.InMemoryHistoryManager;
+
 import task.EpicTask;
 import task.SubTask;
 import task.Task;
@@ -15,6 +15,10 @@ public class InMemoryTaskManager implements TaskManager {
     private Map<Long, EpicTask> epicTasks = new HashMap<>();
     private Map<Long, SubTask> subTasks = new HashMap<>();
     public InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
+
+    public void setIdGenerator(long idGenerator) {
+        this.idGenerator = idGenerator;
+    }
 
     @Override
     public Map<Long, EpicTask> getEpicTasks() {
