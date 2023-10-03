@@ -36,12 +36,12 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(long id) {
-        Node node = nodeMap.remove(id);
-
-        if (node == null) {
+        Node node;
+        if (nodeMap.containsKey(id)) {
+            node = nodeMap.remove(id);
+        } else {
             return;
         }
-
         removeNode(node);
         System.out.println("Task deleted from history by ID = " + id);
     }

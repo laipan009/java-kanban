@@ -1,10 +1,17 @@
 package task;
 
+import java.time.LocalDateTime;
+
 public class SubTask extends Task {
     private long idEpicTask;
 
     public SubTask(String name, String description, long idEpicTask) {
         super(name, description);
+        this.idEpicTask = idEpicTask;
+    }
+
+    public SubTask(String name, String description, long duration, LocalDateTime startTime, long idEpicTask) {
+        super(name, description, duration, startTime);
         this.idEpicTask = idEpicTask;
     }
 

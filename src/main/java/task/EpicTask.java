@@ -1,6 +1,7 @@
 package task;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EpicTask extends Task {
     private List<Long> subTasksId = new ArrayList<>();

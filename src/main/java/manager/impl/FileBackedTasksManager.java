@@ -1,6 +1,8 @@
 package manager.impl;
 
-import task.*;
+import task.EpicTask;
+import task.SubTask;
+import task.Task;
 import utils.CSVMapper;
 
 import java.io.BufferedWriter;
@@ -17,7 +19,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     public void setPathToFile(String pathToFile) {
-        this.pathToFile = pathToFile;
+        if (pathToFile != null) {
+            this.pathToFile = pathToFile;
+        }
     }
 
     public String getPathToFile() {
@@ -50,7 +54,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
      */
     public void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(pathToFile))) {
-            writer.write("id,type,name,status,description,epic\n");
+            writer.write("id,type,name,status,description,duration,start_Time,epic\n");
             Map<Long, ? extends Task> tasks = getTasks();
             for (Long id : tasks.keySet()) {
                 String taskInString = CSVMapper.taskToString(tasks.get(id));
@@ -93,16 +97,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 System.out.println("Object might not find");
             } else {
                 var task = taskInOpt.get();
+                addTaskToTimeTable(task);
                 switch (task.getTaskType()) {
-                    case TASK:
-                        tasks.put(task.getId(), task);
-                        break;
-                    case EPICTASK:
-                        epicTasks.put(task.getId(), (EpicTask) task);
-                        break;
-                    case SUBTASK:
-                        subTasks.put(task.getId(), (SubTask) task);
-                        break;
+                    case TASK -> tasks.put(task.getId(), task);
+                    case EPICTASK -> epicTasks.put(task.getId(), (EpicTask) task);
+                    case SUBTASK -> subTasks.put(task.getId(), (SubTask) task);
                 }
             }
         }
@@ -116,8 +115,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
      * Вызывается после restoreTasksByType, что бы генерация Id продолжилась с последней.
      *
      * @param epicTasks поле содержащее задачи типа EpicTask.
-     * @param subTasks поле содержащее задачи типа SubTask.
-     * @param tasks поле содержащее задачи типа Task.
+     * @param subTasks  поле содержащее задачи типа SubTask.
+     * @param tasks     поле содержащее задачи типа Task.
      */
     private void setNewIdValue(Map<Long, EpicTask> epicTasks, Map<Long, SubTask> subTasks, Map<Long, Task> tasks) {
         TreeSet<Long> tasksIds = new TreeSet<>(tasks.keySet());
@@ -135,7 +134,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
      * Заполняет поле idSubTask у epicTask. Вызывается после метода restoreTasksByType.
      *
      * @param epicTasks поле содержащее задачи типа EpicTask.
-     * @param subTasks поле содержащее задачи типа SubTask.
+     * @param subTasks  поле содержащее задачи типа SubTask.
      */
     public static void combineEpicAndSubTasks(Map<Long, EpicTask> epicTasks, Map<Long, SubTask> subTasks) {
         for (Long idSubTask : subTasks.keySet()) {
@@ -149,7 +148,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     /**
      * Восстанавливает историю просмотра задач.
      *
-     * @param historyList лист задач полученный из метода CSVLoader.historyFromString.
+     * @param historyList       лист задач полученный из метода CSVLoader.historyFromString.
      * @param fileBackedManager объект полученный из метода loadFromFile.
      */
     public static void restoreHistory(List<Long> historyList, FileBackedTasksManager fileBackedManager) {

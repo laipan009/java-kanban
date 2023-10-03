@@ -5,6 +5,8 @@ import task.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,14 +24,20 @@ public class CSVMapper {
      */
     public static String taskToString(Task task) {
         String id = String.valueOf(task.getId());
-        String type = task.getClass().getSimpleName().toUpperCase();
+        String type = task.getTaskType().toString();
         String status = task.getStatus().toString();
+        String duration = String.valueOf(task.getDuration());
+        String startTime = Optional.ofNullable(task.getStartTime())
+                .map(time -> time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .orElse(" ");
 
-        if (task instanceof SubTask) {
+        if (task.getTaskType().equals(TaskType.SUBTASK)) {
             String idEpic = String.valueOf(((SubTask) task).getIdEpicTask());
-            return String.join(",", id, type, task.getName(), status, task.getDescription(), idEpic);
+            return String.join(",", id, type, task.getName(), status, task.getDescription(), duration,
+                    startTime, idEpic);
         } else {
-            return String.join(",", id, type, task.getName(), status, task.getDescription());
+            return String.join(",", id, type, task.getName(), status, task.getDescription(), duration,
+                    startTime);
         }
     }
 
@@ -40,6 +48,9 @@ public class CSVMapper {
      * @return строку в формате CSV.
      */
     public static String getHistoryToString(List<Task> historyTasks) {
+        if (historyTasks.isEmpty()) {
+            return " ";
+        }
         StringBuilder resultString = new StringBuilder();
         for (Task task : historyTasks) {
             resultString.append(task.getId());
@@ -57,7 +68,14 @@ public class CSVMapper {
      */
     public static List<String> getLinesFromFile(String path) {
         try {
-            return Files.readAllLines(Paths.get(path));
+            List<String> lines = Files.readAllLines(Paths.get(path));
+            if (lines.isEmpty()) {
+                throw new RuntimeException("File is Empty");
+            } else if (lines.get(0).equals("id,type,name,status,description,duration,start_Time,epic")) {
+                return lines;
+            } else {
+                throw new RuntimeException("Not valid file format");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -78,23 +96,31 @@ public class CSVMapper {
             String name = taskAttributes[2];
             TaskStatus status = TaskStatus.valueOf(taskAttributes[3]);
             String description = taskAttributes[4];
+            long duration = Long.parseLong(taskAttributes[5]);
+            LocalDateTime startTime = taskAttributes[6].isBlank() ? null : LocalDateTime.parse(taskAttributes[6]);
             Task task;
             switch (type) {
                 case EPICTASK:
                     task = new EpicTask(name, description);
                     task.setId(id);
                     task.setStatus(status);
+                    task.setDuration(duration);
+                    task.setStartTime(startTime);
                     return Optional.ofNullable(task);
                 case TASK:
                     task = new Task(name, description);
                     task.setId(id);
                     task.setStatus(status);
+                    task.setDuration(duration);
+                    task.setStartTime(startTime);
                     return Optional.ofNullable(task);
                 case SUBTASK:
-                    long idEpic = Long.parseLong(taskAttributes[5]);
+                    long idEpic = Long.parseLong(taskAttributes[7]);
                     task = new SubTask(name, description, idEpic);
                     task.setId(id);
                     task.setStatus(status);
+                    task.setDuration(duration);
+                    task.setStartTime(startTime);
                     return Optional.ofNullable(task);
             }
         }
@@ -108,9 +134,13 @@ public class CSVMapper {
      * @return Лист Id объектов содержащихся в истории просмотра задач.
      */
     public static List<Long> historyFromString(List<String> tasksInlines) {
+        List<Long> historyList = new ArrayList<>();
+        if (tasksInlines.isEmpty() || tasksInlines.get(tasksInlines.size() - 1).isBlank()) {
+            return historyList;
+        }
         String lastLineIsHistory = tasksInlines.get(tasksInlines.size() - 1);
         String[] history = lastLineIsHistory.split(",");
-        List<Long> historyList = new ArrayList<>();
+        historyList = new ArrayList<>();
 
         for (String idTask : history) {
             historyList.add(Long.parseLong(idTask));
