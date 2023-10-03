@@ -31,7 +31,7 @@ public class CSVMapper {
                 .map(time -> time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .orElse(" ");
 
-        if (task.getTaskType().equals(TaskType.SUBTASK)) {
+        if (task.getTaskType() == TaskType.SUBTASK) {
             String idEpic = String.valueOf(((SubTask) task).getIdEpicTask());
             return String.join(",", id, type, task.getName(), status, task.getDescription(), duration,
                     startTime, idEpic);

@@ -7,6 +7,7 @@ import task.SubTask;
 import task.Task;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,19 +35,20 @@ class InMemoryTaskManagerTest {
 
     @Test
     void setIdGenerator_ShouldSetIdGeneratorTo2() {
-        taskManager.setIdGenerator(2);
+        taskManager.setId(2);
 
-        assertThat(taskManager.getIdGenerator()).isEqualTo(2);
+        assertThat(taskManager.getId()).isEqualTo(2);
     }
 
     @Test
     void generateId_ShouldIncrementIdGenerator() {
-        long idGeneratorBefore = taskManager.getIdGenerator();
+        long idGeneratorBefore = taskManager.getId();
         long idGeneratorExpected = idGeneratorBefore + 1;
+        Task task = new Task("Test Epic Task", "This is a test epic task");
 
-        taskManager.generateId();
+        taskManager.addNewTask(task);
 
-        assertThat(taskManager.getIdGenerator()).isEqualTo(idGeneratorExpected);
+        assertThat(taskManager.getId()).isEqualTo(idGeneratorExpected);
     }
 
     @Test
@@ -140,10 +142,12 @@ class InMemoryTaskManagerTest {
         assertTrue(taskManager.getSubTasks().containsKey(subTask3.getId()));
         assertTrue(taskManager.getTasks().containsKey(task.getId()));
 
-        assertThat(taskManager.getOrderTasksByStartTime().last()).isEqualTo(task);
-        System.out.println(taskManager.getOrderTasksByStartTime().last());
+        ArrayList<Task> orderedTasks = taskManager.getOrderedTasksByStartTime();
 
-        assertThat(taskManager.getOrderTasksByStartTime().first()).isEqualTo(epicTask);
-        System.out.println(taskManager.getOrderTasksByStartTime().first());
+        assertThat(orderedTasks.get(orderedTasks.size()-1)).isEqualTo(task);
+        System.out.println(orderedTasks.get(orderedTasks.size()-1));
+
+        assertThat(orderedTasks.get(0)).isEqualTo(epicTask);
+        System.out.println(orderedTasks.get(0));
     }
 }

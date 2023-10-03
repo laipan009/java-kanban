@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
-    private long idGenerator = 1;
+    private long id = 1;
     private Map<Long, Task> tasks = new HashMap<>();
     private Map<Long, EpicTask> epicTasks = new HashMap<>();
     private Map<Long, SubTask> subTasks = new HashMap<>();
@@ -33,12 +33,16 @@ public class InMemoryTaskManager implements TaskManager {
     protected TreeMap<Long, Long> timeTableByYear = new TreeMap<>(generateTimeTable());
     public InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
 
-    public void setIdGenerator(long idGenerator) {
-        this.idGenerator = idGenerator;
+    private long generateId() {
+        return id++;
     }
 
-    public long getIdGenerator() {
-        return idGenerator;
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getId() {
+        return id;
     }
 
     protected TreeMap<Long, Long> generateTimeTable() {
@@ -73,6 +77,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (task.getStartTime() == null) {
             return;
         }
+        long sizeOfIntervalInMinBetweenCells = 15;
         LocalDateTime startTask = task.getStartTime();
         LocalDateTime endTask = task.getEndTime();
 
@@ -81,7 +86,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         while (startPoint <= endPoint) {
             timeTableByYear.put(startPoint, 0L);
-            startPoint += 15;
+            startPoint += sizeOfIntervalInMinBetweenCells;
         }
     }
 
@@ -89,6 +94,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (task.getStartTime() == null) {
             return;
         }
+        long sizeOfIntervalInMinBetweenCells = 15;
         LocalDateTime startTask = task.getStartTime();
         LocalDateTime endTask = task.getEndTime();
 
@@ -97,7 +103,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         while (startPoint <= endPoint) {
             timeTableByYear.put(startPoint, task.getId());
-            startPoint += 15;
+            startPoint += sizeOfIntervalInMinBetweenCells;
         }
     }
 
@@ -132,12 +138,12 @@ public class InMemoryTaskManager implements TaskManager {
         sumDuration.ifPresent(duration -> epicTask.setDuration(duration.toMinutes()));
     }
 
-    public TreeSet<Task> getOrderTasksByStartTime() {
+    public ArrayList<Task> getOrderedTasksByStartTime() {
         orderTasksByStartTime.addAll(tasks.values());
         orderTasksByStartTime.addAll(epicTasks.values());
         orderTasksByStartTime.addAll(subTasks.values());
 
-        return orderTasksByStartTime;
+        return new ArrayList<>(orderTasksByStartTime);
     }
 
     @Override
@@ -167,11 +173,6 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Map<Long, Task> getTasks() {
         return tasks;
-    }
-
-    @Override
-    public long generateId() {
-        return idGenerator++;
     }
 
     @Override

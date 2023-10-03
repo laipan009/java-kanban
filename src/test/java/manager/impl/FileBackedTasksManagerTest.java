@@ -102,7 +102,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         assertThat(restoredManager.getTasks()).hasSize(2);
         assertThat(restoredManager.getTasks().get(1L).getName()).isEqualTo("Task 1");
         assertThat(restoredManager.getTasks().get(2L).getName()).isEqualTo("Task 2");
-        assertThat(restoredManager.getOrderTasksByStartTime().first()).isEqualTo(restoredManager.getTasks().get(1L));
+        assertThat(restoredManager.getOrderedTasksByStartTime().get(0)).isEqualTo(restoredManager.getTasks().get(1L));
         Task task = new Task("Test Task", "This is a test epic task", 60, startTime);
         restoredManager.addNewTask(task);
         assertFalse(restoredManager.getTasks().containsKey(task.getId()));

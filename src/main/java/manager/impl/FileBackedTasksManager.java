@@ -126,7 +126,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         tasksIds.addAll(subTasks.keySet());
         if (!tasksIds.isEmpty()) {
             maxId = tasksIds.last();
-            setIdGenerator(maxId);
+            setId(maxId);
         }
     }
 

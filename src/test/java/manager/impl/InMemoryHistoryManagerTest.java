@@ -16,9 +16,9 @@ class InMemoryHistoryManagerTest {
 
     private InMemoryHistoryManager historyManager;
     private Task task;
-    EpicTask epicTask;
-    SubTask subTask;
-    SubTask subTask2;
+    private EpicTask epicTask;
+    private SubTask subTask;
+    private SubTask subTask2;
 
     @BeforeEach
     void setUp() {
