@@ -37,11 +37,11 @@ public class InMemoryTaskManager implements TaskManager {
         return id++;
     }
 
-    public void setId(long id) {
+    protected void setId(long id) {
         this.id = id;
     }
 
-    public long getId() {
+    protected long getId() {
         return id;
     }
 
@@ -138,7 +138,8 @@ public class InMemoryTaskManager implements TaskManager {
         sumDuration.ifPresent(duration -> epicTask.setDuration(duration.toMinutes()));
     }
 
-    public ArrayList<Task> getOrderedTasksByStartTime() {
+    @Override
+    public List<Task> getOrderedTasksByStartTime() {
         orderTasksByStartTime.addAll(tasks.values());
         orderTasksByStartTime.addAll(epicTasks.values());
         orderTasksByStartTime.addAll(subTasks.values());
@@ -315,7 +316,6 @@ public class InMemoryTaskManager implements TaskManager {
         }
         if (checkIntersections(subTask)) {
             long idEpicTask = subTask.getIdEpicTask();
-
             subTask.setId(generateId());
             addTaskToTimeTable(subTask);
             subTasks.put(subTask.getId(), subTask);
@@ -332,21 +332,18 @@ public class InMemoryTaskManager implements TaskManager {
      */
     @Override
     public void updateTask(Task updatedTask) {
-        if (tasks != null && tasks.containsKey(updatedTask.getId())) {
-            Task oldTask = tasks.get(updatedTask.getId());
-            removeTaskFromTimeTable(oldTask);
-            if (checkIntersections(updatedTask)) {
-                tasks.put(updatedTask.getId(), updatedTask);
-                addTaskToTimeTable(updatedTask);
-                System.out.println("Задача обновлена");
-            } else {
-                addTaskToTimeTable(oldTask);
-                throw new RuntimeException("Task time overlaps with an existing task");
-            }
-
-        } else {
+        if (tasks == null || !tasks.containsKey(updatedTask.getId())) {
             throw new RuntimeException("Task not found");
         }
+        Task oldTask = tasks.get(updatedTask.getId());
+        removeTaskFromTimeTable(oldTask);
+        if (!checkIntersections(updatedTask)) {
+            addTaskToTimeTable(oldTask);
+            throw new RuntimeException("Task time overlaps with an existing task");
+        }
+        tasks.put(updatedTask.getId(), updatedTask);
+        addTaskToTimeTable(updatedTask);
+        System.out.println("Задача обновлена");
     }
 
     /**
@@ -357,24 +354,21 @@ public class InMemoryTaskManager implements TaskManager {
      */
     @Override
     public void updateSubTask(SubTask updatedTask) {
-        if (subTasks != null && subTasks.containsKey(updatedTask.getId())) {
-            SubTask oldTask = subTasks.get(updatedTask.getId());
-            removeTaskFromTimeTable(oldTask);
-            if (checkIntersections(updatedTask)) {
-                EpicTask epicTask = epicTasks.get(updatedTask.getIdEpicTask());
-
-                addTaskToTimeTable(updatedTask);
-                subTasks.put(updatedTask.getId(), updatedTask);
-                checkStatusEpicTask(epicTask);
-                updateEpicTimeParameters(epicTask);
-                System.out.println("Задача обновлена");
-            } else {
-                addTaskToTimeTable(oldTask);
-                throw new RuntimeException("Task time overlaps with an existing task");
-            }
-        } else {
+        if (subTasks == null || !subTasks.containsKey(updatedTask.getId())) {
             throw new RuntimeException("Task not found");
         }
+        SubTask oldTask = subTasks.get(updatedTask.getId());
+        removeTaskFromTimeTable(oldTask);
+        if (!checkIntersections(updatedTask)) {
+            addTaskToTimeTable(oldTask);
+            throw new RuntimeException("Task time overlaps with an existing task");
+        }
+        EpicTask epicTask = epicTasks.get(updatedTask.getIdEpicTask());
+        addTaskToTimeTable(updatedTask);
+        subTasks.put(updatedTask.getId(), updatedTask);
+        checkStatusEpicTask(epicTask);
+        updateEpicTimeParameters(epicTask);
+        System.out.println("Задача обновлена");
     }
 
     /**
@@ -384,20 +378,19 @@ public class InMemoryTaskManager implements TaskManager {
      */
     @Override
     public void updateEpicTask(EpicTask updatedTask) {
-        if (epicTasks != null && epicTasks.containsKey(updatedTask.getId())) {
-            List<Long> subTasksId = updatedTask.getSubTasksId();
-
-            if (!subTasksId.isEmpty()) {
-                for (Long idSubtask : subTasksId) {
-                    updateSubTask(subTasks.get(idSubtask));
-                }
-            }
-
-            epicTasks.put(updatedTask.getId(), updatedTask);
-            System.out.println("Задача обновлена");
-        } else {
+        if (epicTasks == null || !epicTasks.containsKey(updatedTask.getId())) {
             throw new RuntimeException("Task not found");
         }
+        List<Long> subTasksId = updatedTask.getSubTasksId();
+
+        if (!subTasksId.isEmpty()) {
+            for (Long idSubtask : subTasksId) {
+                updateSubTask(subTasks.get(idSubtask));
+            }
+        }
+
+        epicTasks.put(updatedTask.getId(), updatedTask);
+        System.out.println("Задача обновлена");
     }
 
     /**
@@ -441,14 +434,13 @@ public class InMemoryTaskManager implements TaskManager {
      */
     @Override
     public void deleteByIdTask(long id) {
-        if (tasks != null && tasks.containsKey(id)) {
-            removeTaskFromTimeTable(tasks.get(id));
-            tasks.remove(id);
-            historyManager.remove(id);
-            System.out.println("Task deleted by id  = " + id);
-        } else {
+        if (tasks == null || !tasks.containsKey(id)) {
             throw new RuntimeException("Task not found");
         }
+        removeTaskFromTimeTable(tasks.get(id));
+        tasks.remove(id);
+        historyManager.remove(id);
+        System.out.println("Task deleted by id  = " + id);
     }
 
     /**
@@ -458,15 +450,14 @@ public class InMemoryTaskManager implements TaskManager {
      */
     @Override
     public void deleteByIdSubTask(long id) {
-        if (subTasks != null && subTasks.containsKey(id)) {
-            removeTaskFromTimeTable(subTasks.get(id));
-            deleteSubTaskFromEpic(subTasks.get(id));
-            subTasks.remove(id);
-            historyManager.remove(id);
-            System.out.println("Task deleted by id  = " + id);
-        } else {
+        if (subTasks == null || !subTasks.containsKey(id)) {
             throw new RuntimeException("Task not found");
         }
+        removeTaskFromTimeTable(subTasks.get(id));
+        deleteSubTaskFromEpic(subTasks.get(id));
+        subTasks.remove(id);
+        historyManager.remove(id);
+        System.out.println("Task deleted by id  = " + id);
     }
 
     /**
@@ -477,22 +468,20 @@ public class InMemoryTaskManager implements TaskManager {
      */
     @Override
     public void deleteByIdEpicTasks(long id) {
-        if (epicTasks != null && epicTasks.containsKey(id)) {
-            List<Long> listSubTasks = epicTasks.get(id).getSubTasksId();
-            epicTasks.remove(id);
-            historyManager.remove(id);
-
-            if (!listSubTasks.isEmpty()) {
-                for (Long idSubtask : listSubTasks) {
-                    removeTaskFromTimeTable(subTasks.get(idSubtask));
-                    subTasks.remove(idSubtask);
-                    historyManager.remove(idSubtask);
-                }
-            }
-
-            System.out.println("Task deleted by id  = " + id);
-        } else {
+        if (epicTasks == null || !epicTasks.containsKey(id)) {
             throw new RuntimeException("Task not found");
         }
+        List<Long> listSubTasks = epicTasks.get(id).getSubTasksId();
+        epicTasks.remove(id);
+        historyManager.remove(id);
+
+        if (!listSubTasks.isEmpty()) {
+            for (Long idSubtask : listSubTasks) {
+                removeTaskFromTimeTable(subTasks.get(idSubtask));
+                subTasks.remove(idSubtask);
+                historyManager.remove(idSubtask);
+            }
+        }
+        System.out.println("Task deleted by id  = " + id);
     }
 }

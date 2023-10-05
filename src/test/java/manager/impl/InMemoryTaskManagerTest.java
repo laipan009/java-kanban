@@ -1,5 +1,6 @@
 package manager.impl;
 
+import manager.api.TaskManagerTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.EpicTask;
@@ -7,14 +8,14 @@ import task.SubTask;
 import task.Task;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class InMemoryTaskManagerTest {
+class InMemoryTaskManagerTest extends TaskManagerTest {
 
     private InMemoryTaskManager taskManager;
 
@@ -142,7 +143,7 @@ class InMemoryTaskManagerTest {
         assertTrue(taskManager.getSubTasks().containsKey(subTask3.getId()));
         assertTrue(taskManager.getTasks().containsKey(task.getId()));
 
-        ArrayList<Task> orderedTasks = taskManager.getOrderedTasksByStartTime();
+        List<Task> orderedTasks = taskManager.getOrderedTasksByStartTime();
 
         assertThat(orderedTasks.get(orderedTasks.size()-1)).isEqualTo(task);
         System.out.println(orderedTasks.get(orderedTasks.size()-1));

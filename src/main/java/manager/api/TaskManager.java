@@ -7,7 +7,8 @@ import task.Task;
 import java.util.*;
 
 public interface TaskManager {
-    public ArrayList<Task> getOrderedTasksByStartTime();
+    List<Task> getOrderedTasksByStartTime();
+
     Map<Long, EpicTask> getEpicTasks();
 
     void setEpicTasks(Map<Long, EpicTask> epicTasks);
@@ -53,7 +54,6 @@ public interface TaskManager {
     void deleteByIdSubTask(long id);
 
     void deleteByIdEpicTasks(long id);
-
 }
 
 

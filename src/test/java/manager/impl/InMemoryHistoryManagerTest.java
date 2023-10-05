@@ -35,7 +35,6 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void add_WhenTaskNotInHistoryThenTaskAdded() {
-        setUp();
         assertFalse(historyManager.getHistory().contains(task));
 
         historyManager.add(task);
@@ -45,7 +44,6 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void add_WhenTaskInHistoryThenTaskRemovedAndAddedAgain() {
-        setUp();
         historyManager.add(task);
         List<Task> historyBeforeSecondAdd = historyManager.getHistory();
 
@@ -59,7 +57,6 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void add_WhenNullTaskThenNoModification() {
-        setUp();
         List<Task> historyBeforeAdd = historyManager.getHistory();
 
         historyManager.add(null);
@@ -104,7 +101,6 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void remove_ShouldReturnEmptyListAfterRemoveElement() {
-        setUp();
         historyManager.add(task);
         List<Task> historyBeforeRemove = historyManager.getHistory();
         assertTrue(historyBeforeRemove.contains(task));
@@ -117,7 +113,6 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void remove_NoModificationIfTaskIdIsNotExist() {
-        setUp();
         historyManager.add(task);
         List<Task> historyBeforeRemove = historyManager.getHistory();
         long notExistId = 111;
@@ -130,7 +125,6 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void remove_AddToHistoryAndRemoveEdgePositions() {
-        setUp();
         historyManager.add(task);
         historyManager.add(epicTask);
         historyManager.add(subTask);
