@@ -14,7 +14,7 @@ import java.util.*;
 public class FileBackedTasksManager extends InMemoryTaskManager {
     private String pathToFile;
 
-    public FileBackedTasksManager(String pathToFile) {
+    public FileBackedTasksManager(String pathToFile)  {
         this.pathToFile = pathToFile;
     }
 
@@ -34,7 +34,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
      * @param file содержащий данные для восстановления.
      * @return восстановленный из файла объект FileBackedTasksManager.
      */
-    public static FileBackedTasksManager loadFromFile(File file) {
+    public FileBackedTasksManager loadFromFile(File file) {
         FileBackedTasksManager fBTManager = new FileBackedTasksManager(file.getPath());
         List<String> list = CSVMapper.getLinesFromFile(fBTManager.getPathToFile());
         List<Long> historyList = CSVMapper.historyFromString(list);
@@ -118,7 +118,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
      * @param subTasks  поле содержащее задачи типа SubTask.
      * @param tasks     поле содержащее задачи типа Task.
      */
-    private void setNewIdValue(Map<Long, EpicTask> epicTasks, Map<Long, SubTask> subTasks, Map<Long, Task> tasks) {
+    protected void setNewIdValue(Map<Long, EpicTask> epicTasks, Map<Long, SubTask> subTasks, Map<Long, Task> tasks) {
         TreeSet<Long> tasksIds = new TreeSet<>(tasks.keySet());
         long maxId;
 
@@ -136,7 +136,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
      * @param epicTasks поле содержащее задачи типа EpicTask.
      * @param subTasks  поле содержащее задачи типа SubTask.
      */
-    public static void combineEpicAndSubTasks(Map<Long, EpicTask> epicTasks, Map<Long, SubTask> subTasks) {
+    protected static void combineEpicAndSubTasks(Map<Long, EpicTask> epicTasks, Map<Long, SubTask> subTasks) {
         for (Long idSubTask : subTasks.keySet()) {
             long idEpic = subTasks.get(idSubTask).getIdEpicTask();
             if (epicTasks.containsKey(idEpic)) {
@@ -220,6 +220,24 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     @Override
     public void deleteByIdEpicTasks(long id) {
         super.deleteByIdEpicTasks(id);
+        save();
+    }
+
+    @Override
+    public void removeAllTasks() {
+        super.removeAllTasks();
+        save();
+    }
+
+    @Override
+    public void removeAllSubTasks() {
+        super.removeAllSubTasks();
+        save();
+    }
+
+    @Override
+    public void removeAllEpicTasks() {
+        super.removeAllEpicTasks();
         save();
     }
 }

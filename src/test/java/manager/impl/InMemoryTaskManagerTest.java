@@ -15,9 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class InMemoryTaskManagerTest extends TaskManagerTest {
-
-    private InMemoryTaskManager taskManager;
+class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
 
     @BeforeEach
     void setUpManager() {
@@ -120,8 +118,11 @@ class InMemoryTaskManagerTest extends TaskManagerTest {
     void getOrderTasksByStartTime_ShouldReturnSetOrderingTasksWhereFirstIsUpcomingTimeTask() {
         LocalDateTime startTime = LocalDateTime.of(2023, 9, 29, 10, 0, 0);
 
-        Task task = new Task("Test Epic Task", "This is a test epic task");
+        Task task = new Task("Test Task1", "This is a test  task1");
         taskManager.addNewTask(task);
+
+        Task task2 = new Task("Test Task2", "This is a test task2");
+        taskManager.addNewTask(task2);
 
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
         taskManager.addNewEpicTask(epicTask);
@@ -134,21 +135,36 @@ class InMemoryTaskManagerTest extends TaskManagerTest {
                 startTime.plusMinutes(61), epicTask.getId());
         taskManager.addNewSubTask(subTask2);
 
-        SubTask subTask3 = new SubTask("Test SubTask2", "This is a test subtask2", 60,
+        SubTask subTask3 = new SubTask("Test SubTask3", "This is a test subtask2", 60,
                 startTime.plusMinutes(121), epicTask.getId());
         taskManager.addNewSubTask(subTask3);
 
         assertTrue(taskManager.getSubTasks().containsKey(subTask.getId()));
+        assertTrue(taskManager.getEpicTasks().containsKey(epicTask.getId()));
         assertTrue(taskManager.getSubTasks().containsKey(subTask2.getId()));
         assertTrue(taskManager.getSubTasks().containsKey(subTask3.getId()));
         assertTrue(taskManager.getTasks().containsKey(task.getId()));
+        assertTrue(taskManager.getTasks().containsKey(task2.getId()));
 
         List<Task> orderedTasks = taskManager.getOrderedTasksByStartTime();
+        orderedTasks.forEach(System.out::println);
 
-        assertThat(orderedTasks.get(orderedTasks.size()-1)).isEqualTo(task);
-        System.out.println(orderedTasks.get(orderedTasks.size()-1));
+        SubTask subTask4 = new SubTask("Test SubTask4", "This is a test subtask2", 60,
+                startTime.plusHours(5), epicTask.getId());
+        taskManager.addNewSubTask(subTask4); /// протестить обновление
+
+        Task task3 = new Task("Test SubTask", "This is a test subtask", 60, startTime);
+        taskManager.addNewTask(task3);
+
+        System.out.println();
+
+        List<Task> orderedTasks2 = taskManager.getOrderedTasksByStartTime();
+        orderedTasks2.forEach(System.out::println);
+
+        assertThat(orderedTasks.get(orderedTasks.size()-1)).isEqualTo(task2);
+        //System.out.println(orderedTasks.get(orderedTasks.size()-1));
 
         assertThat(orderedTasks.get(0)).isEqualTo(epicTask);
-        System.out.println(orderedTasks.get(0));
+        //System.out.println(orderedTasks.get(0));
     }
 }

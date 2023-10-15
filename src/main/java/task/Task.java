@@ -11,6 +11,9 @@ public class Task {
     protected long duration;
     protected LocalDateTime startTime;
 
+    public Task() {
+    }
+
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
@@ -98,11 +101,13 @@ public class Task {
 
     @Override
     public String toString() {
-        return "task.Task{" +
+        return "Task{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", status=" + status +
+                ", duration=" + duration +
+                ", startTime=" + startTime +
                 '}';
     }
 }

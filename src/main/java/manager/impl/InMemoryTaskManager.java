@@ -23,13 +23,14 @@ public class InMemoryTaskManager implements TaskManager {
         } else if (o2.getStartTime() == null) {
             return -1;
         } else if (o1.getStartTime().equals(o2.getStartTime())) {
-            return 0;
+            return 1;
         } else if (o1.getStartTime().isBefore(o2.getStartTime())) {
             return -1;
         } else {
             return 1;
         }
     });
+
     protected TreeMap<Long, Long> timeTableByYear = new TreeMap<>(generateTimeTable());
     public InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
 
@@ -144,7 +145,10 @@ public class InMemoryTaskManager implements TaskManager {
         orderTasksByStartTime.addAll(epicTasks.values());
         orderTasksByStartTime.addAll(subTasks.values());
 
-        return new ArrayList<>(orderTasksByStartTime);
+        ArrayList<Task> orderedTasks = new ArrayList<>(orderTasksByStartTime);
+        orderTasksByStartTime.clear();
+
+        return orderedTasks;
     }
 
     @Override

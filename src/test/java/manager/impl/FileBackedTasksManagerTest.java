@@ -17,35 +17,34 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileBackedTasksManagerTest extends TaskManagerTest {
+class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager> {
     private Path tempFilePath;
     private String path = "C:\\Users\\superuser\\IdeaProjects\\java-kanban2\\test.csv";
-    private FileBackedTasksManager fileBackedManager;
 
     @BeforeEach
     void setUpBackedManager() {
         tempFilePath = Path.of("C:\\Users\\superuser\\IdeaProjects\\java-kanban2\\test.csv");
-        fileBackedManager = new FileBackedTasksManager(tempFilePath.toString());
+        taskManager = new FileBackedTasksManager(tempFilePath.toString());
     }
 
     @Test
     void setPathToFile_ShouldSetNewValueForPathToFileIfNotNull() {
-        assertThat(fileBackedManager.getPathToFile()).isEqualTo(path);
+        assertThat(taskManager.getPathToFile()).isEqualTo(path);
         String newPath = "C:\\Users\\superuser\\IdeaProjects\\java-kanban2\\NEWtest.csv";
 
-        fileBackedManager.setPathToFile(newPath);
+        taskManager.setPathToFile(newPath);
 
-        assertThat(fileBackedManager.getPathToFile()).isEqualTo(newPath);
+        assertThat(taskManager.getPathToFile()).isEqualTo(newPath);
     }
 
     @Test
     void setPathToFile_ShouldNotDoAnythingIfValueForPathToFileIsNull() {
-        assertThat(fileBackedManager.getPathToFile()).isEqualTo(path);
+        assertThat(taskManager.getPathToFile()).isEqualTo(path);
         String newPath = null;
 
-        fileBackedManager.setPathToFile(newPath);
+        taskManager.setPathToFile(newPath);
 
-        assertThat(fileBackedManager.getPathToFile()).isEqualTo(path);
+        assertThat(taskManager.getPathToFile()).isEqualTo(path);
     }
 
     @Test
@@ -53,13 +52,13 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         LocalDateTime startTime = LocalDateTime.of(2023, 9, 29, 10, 0, 0);
 
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
-        fileBackedManager.addNewEpicTask(epicTask);
+        taskManager.addNewEpicTask(epicTask);
 
         SubTask subTask = new SubTask("Test SubTask", "This is a test subtask", 60, startTime,
                 epicTask.getId());
-        fileBackedManager.addNewSubTask(subTask);
+        taskManager.addNewSubTask(subTask);
 
-        fileBackedManager.save();
+        taskManager.save();
 
         String fileContent = Files.readString(tempFilePath);
         assertThat(fileContent).contains(
@@ -78,7 +77,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
 
         Files.writeString(tempFilePath, validData, StandardCharsets.UTF_8);
 
-        FileBackedTasksManager restoredManager = FileBackedTasksManager.loadFromFile(tempFilePath.toFile());
+        FileBackedTasksManager restoredManager = taskManager.loadFromFile(tempFilePath.toFile());
 
         assertThat(restoredManager.getTasks()).hasSize(2);
         assertThat(restoredManager.getTasks().get(1L).getDuration()).isEqualTo(0);
@@ -97,7 +96,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
 
         Files.writeString(tempFilePath, validData, StandardCharsets.UTF_8);
 
-        FileBackedTasksManager restoredManager = FileBackedTasksManager.loadFromFile(tempFilePath.toFile());
+        FileBackedTasksManager restoredManager = taskManager.loadFromFile(tempFilePath.toFile());
 
         assertThat(restoredManager.getTasks()).hasSize(2);
         assertThat(restoredManager.getTasks().get(1L).getName()).isEqualTo("Task 1");
@@ -117,7 +116,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
 
         Exception exception = Assertions.assertThrows(
                 RuntimeException.class,
-                () -> FileBackedTasksManager.loadFromFile(tempFilePath.toFile())
+                () -> taskManager.loadFromFile(tempFilePath.toFile())
         );
 
         assertThat(exception.getMessage()).isEqualTo("File is Empty");
@@ -131,7 +130,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
 
         Exception exception = Assertions.assertThrows(
                 RuntimeException.class,
-                () -> FileBackedTasksManager.loadFromFile(tempFilePath.toFile())
+                () -> taskManager.loadFromFile(tempFilePath.toFile())
         );
 
         assertThat(exception.getMessage()).isEqualTo("Not valid file format");

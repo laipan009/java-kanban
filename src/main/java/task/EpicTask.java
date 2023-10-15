@@ -30,11 +30,12 @@ public class EpicTask extends Task {
     @Override
     public String toString() {
         return "EpicTask{" +
-                "subTasksId=" + subTasksId +
-                ", id=" + id +
+                "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", status=" + status +
+                ", duration=" + duration +
+                ", startTime=" + startTime +
                 '}';
     }
 }

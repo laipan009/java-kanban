@@ -1,7 +1,5 @@
 package manager.api;
 
-import manager.impl.InMemoryTaskManager;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.EpicTask;
 import task.SubTask;
@@ -17,10 +15,10 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-public abstract class TaskManagerTest {
-    protected InMemoryTaskManager inMemoryTaskManager;
+public abstract class TaskManagerTest <T extends TaskManager>{
+    protected T taskManager;
 
-    InMemoryTaskManager getInMemoryTaskManager() {
+    T getTaskManager() {
         Map<Long, EpicTask> epicTasks = new HashMap<>();
         Map<Long, SubTask> subTasks = new HashMap<>();
         Map<Long, Task> tasks = new HashMap<>();
@@ -55,22 +53,17 @@ public abstract class TaskManagerTest {
         task3.setId(9);
         tasks.put(9L, task3);
 
-        inMemoryTaskManager.setEpicTasks(epicTasks);
-        inMemoryTaskManager.setSubTasks(subTasks);
-        inMemoryTaskManager.setTasks(tasks);
-        return inMemoryTaskManager;
-    }
-
-    @BeforeEach
-    void setUp() {
-        inMemoryTaskManager = new InMemoryTaskManager();
+        taskManager.setEpicTasks(epicTasks);
+        taskManager.setSubTasks(subTasks);
+        taskManager.setTasks(tasks);
+        return taskManager;
     }
 
     @Test
     void getEpicTasks_ShouldReturnEpicTasks() {
-        Map<Long, EpicTask> epicTasks = getInMemoryTaskManager().getEpicTasks();
+        Map<Long, EpicTask> epicTasks = getTaskManager().getEpicTasks();
 
-        assertThat(inMemoryTaskManager.getEpicTasks()).isEqualTo(epicTasks);
+        assertThat(taskManager.getEpicTasks()).isEqualTo(epicTasks);
     }
 
     @Test
@@ -79,16 +72,16 @@ public abstract class TaskManagerTest {
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
         epicTasks.put(1L, epicTask);
 
-        inMemoryTaskManager.setEpicTasks(epicTasks);
+        taskManager.setEpicTasks(epicTasks);
 
-        assertThat(inMemoryTaskManager.getEpicTasks()).isEqualTo(epicTasks);
+        assertThat(taskManager.getEpicTasks()).isEqualTo(epicTasks);
     }
 
     @Test
     void getSubTasks_ShouldReturnSubTasks() {
-        Map<Long, SubTask> subTasks = getInMemoryTaskManager().getSubTasks();
+        Map<Long, SubTask> subTasks = getTaskManager().getSubTasks();
 
-        assertThat(inMemoryTaskManager.getSubTasks()).isEqualTo(subTasks);
+        assertThat(taskManager.getSubTasks()).isEqualTo(subTasks);
     }
 
     @Test
@@ -97,16 +90,16 @@ public abstract class TaskManagerTest {
         SubTask subTask = new SubTask("Test SubTask", "This is a test subtask", 1L);
         subTasks.put(1L, subTask);
 
-        inMemoryTaskManager.setSubTasks(subTasks);
+        taskManager.setSubTasks(subTasks);
 
-        assertThat(inMemoryTaskManager.getSubTasks()).isEqualTo(subTasks);
+        assertThat(taskManager.getSubTasks()).isEqualTo(subTasks);
     }
 
     @Test
     void getTasks_ShouldReturnTasks() {
-        Map<Long, Task> tasks = getInMemoryTaskManager().getTasks();
+        Map<Long, Task> tasks = getTaskManager().getTasks();
 
-        assertThat(inMemoryTaskManager.getTasks()).isEqualTo(tasks);
+        assertThat(taskManager.getTasks()).isEqualTo(tasks);
     }
 
     @Test
@@ -115,19 +108,19 @@ public abstract class TaskManagerTest {
         Task task = new Task("Test Task", "This is a test task");
         tasks.put(1L, task);
 
-        inMemoryTaskManager.setTasks(tasks);
+        taskManager.setTasks(tasks);
 
-        assertThat(inMemoryTaskManager.getTasks()).isEqualTo(tasks);
+        assertThat(taskManager.getTasks()).isEqualTo(tasks);
     }
 
     @Test
     void getSubTasksByEpicId_ShouldReturnSubTasksWithMatchingEpicId() {
-        inMemoryTaskManager = getInMemoryTaskManager();
-        SubTask subTask = inMemoryTaskManager.getSubTasks().get(4L);
-        SubTask subTask2 = inMemoryTaskManager.getSubTasks().get(5L);
-        SubTask subTask3 = inMemoryTaskManager.getSubTasks().get(6L);
+        taskManager = getTaskManager();
+        SubTask subTask = taskManager.getSubTasks().get(4L);
+        SubTask subTask2 = taskManager.getSubTasks().get(5L);
+        SubTask subTask3 = taskManager.getSubTasks().get(6L);
 
-        List<SubTask> actualSubTasks = inMemoryTaskManager.getSubTasksByEpicId(1L);
+        List<SubTask> actualSubTasks = taskManager.getSubTasksByEpicId(1L);
 
         assertAll("Success",
                 () -> assertThat(actualSubTasks).contains(subTask),
@@ -138,10 +131,10 @@ public abstract class TaskManagerTest {
 
     @Test
     void getSubTasksByEpicId_ShouldReturnEmptyListSubTasksIfEpicIdNotFound() {
-        inMemoryTaskManager = getInMemoryTaskManager();
+        taskManager = getTaskManager();
         long notExistId = 1111;
 
-        List<SubTask> actualSubTasks = inMemoryTaskManager.getSubTasksByEpicId(notExistId);
+        List<SubTask> actualSubTasks = taskManager.getSubTasksByEpicId(notExistId);
 
         assertThat(actualSubTasks).isEmpty();
     }
@@ -153,79 +146,79 @@ public abstract class TaskManagerTest {
         Map<Long, SubTask> subTasks = new HashMap<>();
         SubTask subTask = new SubTask("Test SubTask", "This is a test subtask", 2L);
         subTasks.put(3L, subTask);
-        inMemoryTaskManager.setSubTasks(subTasks);
+        taskManager.setSubTasks(subTasks);
 
-        List<SubTask> actualSubTasks = inMemoryTaskManager.getSubTasksByEpicId(1L);
+        List<SubTask> actualSubTasks = taskManager.getSubTasksByEpicId(1L);
 
         assertThat(actualSubTasks).isEmpty();
     }
 
     @Test
     void removeAllTasks_ShouldRemoveAllTasks() {
-        inMemoryTaskManager = getInMemoryTaskManager();
+        taskManager = getTaskManager();
 
-        inMemoryTaskManager.removeAllTasks();
+        taskManager.removeAllTasks();
 
-        assertThat(inMemoryTaskManager.getTasks()).isEmpty();
+        assertThat(taskManager.getTasks()).isEmpty();
     }
 
     @Test
     void removeAllTasks_ShouldRemoveAllTasksEvenIsEmpty() {
         Map<Long, Task> tasks = null;
-        inMemoryTaskManager.setTasks(tasks);
+        taskManager.setTasks(tasks);
 
-        inMemoryTaskManager.removeAllTasks();
+        taskManager.removeAllTasks();
 
-        assertThat(inMemoryTaskManager.getTasks()).isEmpty();
+        assertThat(taskManager.getTasks()).isEmpty();
     }
 
     @Test
     void removeAllSubTasks_ShouldRemoveAllSubTasks() {
-        inMemoryTaskManager = getInMemoryTaskManager();
+        taskManager = getTaskManager();
 
-        inMemoryTaskManager.removeAllSubTasks();
+        taskManager.removeAllSubTasks();
 
-        assertThat(inMemoryTaskManager.getSubTasks()).isEmpty();
+        assertThat(taskManager.getSubTasks()).isEmpty();
     }
 
     @Test
     void removeAllSubTasks_ShouldRemoveAllSubTasksEvenIsEmpty() {
         Map<Long, SubTask> subtasks = null;
-        inMemoryTaskManager.setSubTasks(subtasks);
+        taskManager.setSubTasks(subtasks);
 
-        inMemoryTaskManager.removeAllSubTasks();
+        taskManager.removeAllSubTasks();
 
-        assertThat(inMemoryTaskManager.getSubTasks()).isEmpty();
+        assertThat(taskManager.getSubTasks()).isEmpty();
     }
 
     @Test
     void removeAllEpicTasks_ShouldRemoveAllEpicTasksAndSubTasks() {
-        inMemoryTaskManager = getInMemoryTaskManager();
+        taskManager = getTaskManager();
 
-        inMemoryTaskManager.removeAllEpicTasks();
+        taskManager.removeAllEpicTasks();
 
         assertAll("Success",
-                () -> assertThat(inMemoryTaskManager.getEpicTasks()).isEmpty(),
-                () -> assertThat(inMemoryTaskManager.getSubTasks()).isEmpty()
+                () -> assertThat(taskManager.getEpicTasks()).isEmpty(),
+                () -> assertThat(taskManager.getSubTasks()).isEmpty()
         );
     }
 
     @Test
     void removeAllEpicTasks_ShouldRemoveAllEpicTasksEvenIsEmpty() {
         Map<Long, EpicTask> epictasks = null;
-        inMemoryTaskManager.setEpicTasks(epictasks);
+        taskManager.setEpicTasks(epictasks);
 
-        inMemoryTaskManager.removeAllEpicTasks();
+        taskManager.removeAllEpicTasks();
 
-        assertThat(inMemoryTaskManager.getEpicTasks()).isEmpty();
+        assertThat(taskManager.getEpicTasks()).isEmpty();
     }
 
     @Test
     void getById_ShouldReturnTaskWithMatchingId() {
-        inMemoryTaskManager = getInMemoryTaskManager();
-        Task task = inMemoryTaskManager.getTasks().get(7L);
+        taskManager = getTaskManager();
+        Task task = taskManager.getTasks().get(7L);
 
-        Optional<Task> actualTask = inMemoryTaskManager.getById(7);
+        Optional<Task> actualTask = taskManager.getById(7);
 
         assertThat(actualTask.get()).isEqualTo(task);
     }
@@ -233,29 +226,29 @@ public abstract class TaskManagerTest {
     @Test
     void getById_ShouldReturnOptionalWithNullIfTasksIsEmpty() {
         Map<Long, Task> tasks = null;
-        inMemoryTaskManager.setTasks(tasks);
+        taskManager.setTasks(tasks);
 
-        Optional<Task> actualTask = inMemoryTaskManager.getById(7);
+        Optional<Task> actualTask = taskManager.getById(7);
 
         assertThat(actualTask).isEmpty();
     }
 
     @Test
     void getById_ShouldReturnOptionalWithNullIfIdNotExist() {
-        inMemoryTaskManager = getInMemoryTaskManager();
+        taskManager = getTaskManager();
         long notExistId = 111;
 
-        Optional<Task> actualTask = inMemoryTaskManager.getById(notExistId);
+        Optional<Task> actualTask = taskManager.getById(notExistId);
 
         assertThat(actualTask).isEmpty();
     }
 
     @Test
     void getById_ShouldReturnSubTaskWithMatchingId() {
-        inMemoryTaskManager = getInMemoryTaskManager();
-        SubTask subTask = inMemoryTaskManager.getSubTasks().get(4L);
+        taskManager = getTaskManager();
+        SubTask subTask = taskManager.getSubTasks().get(4L);
 
-        Optional<SubTask> actualSubTask = inMemoryTaskManager.getByIdSubTask(4);
+        Optional<SubTask> actualSubTask = taskManager.getByIdSubTask(4);
 
         assertThat(actualSubTask.get()).isEqualTo(subTask);
     }
@@ -263,29 +256,29 @@ public abstract class TaskManagerTest {
     @Test
     void getById_ShouldReturnOptionalSubTaskWithNullIfSubTasksIsEmpty() {
         Map<Long, SubTask> subTasks = null;
-        inMemoryTaskManager.setSubTasks(subTasks);
+        taskManager.setSubTasks(subTasks);
 
-        Optional<SubTask> actualSubTask = inMemoryTaskManager.getByIdSubTask(7);
+        Optional<SubTask> actualSubTask = taskManager.getByIdSubTask(7);
 
         assertThat(actualSubTask).isEmpty();
     }
 
     @Test
     void getById_ShouldReturnOptionalSubTaskWithNullIfIdNotExist() {
-        inMemoryTaskManager = getInMemoryTaskManager();
+        taskManager = getTaskManager();
         long notExistId = 111;
 
-        Optional<SubTask> actualSubTask = inMemoryTaskManager.getByIdSubTask(notExistId);
+        Optional<SubTask> actualSubTask = taskManager.getByIdSubTask(notExistId);
 
         assertThat(actualSubTask).isEmpty();
     }
 
     @Test
     void getById_ShouldReturnEpicTaskWithMatchingId() {
-        inMemoryTaskManager = getInMemoryTaskManager();
-        EpicTask epicTask = inMemoryTaskManager.getEpicTasks().get(1L);
+        taskManager = getTaskManager();
+        EpicTask epicTask = taskManager.getEpicTasks().get(1L);
 
-        Optional<EpicTask> actualEpicTask = inMemoryTaskManager.getByIdEpicTask(1);
+        Optional<EpicTask> actualEpicTask = taskManager.getByIdEpicTask(1);
 
         assertThat(actualEpicTask.get()).isEqualTo(epicTask);
     }
@@ -293,19 +286,19 @@ public abstract class TaskManagerTest {
     @Test
     void getById_ShouldReturnOptionalEpicTaskWithNullIfSubTasksIsEmpty() {
         Map<Long, EpicTask> epicTasks = null;
-        inMemoryTaskManager.setEpicTasks(epicTasks);
+        taskManager.setEpicTasks(epicTasks);
 
-        Optional<EpicTask> actualEpicTask = inMemoryTaskManager.getByIdEpicTask(1);
+        Optional<EpicTask> actualEpicTask = taskManager.getByIdEpicTask(1);
 
         assertThat(actualEpicTask).isEmpty();
     }
 
     @Test
     void getById_ShouldReturnOptionalEpicTaskWithNullIfIdNotExist() {
-        inMemoryTaskManager = getInMemoryTaskManager();
+        taskManager = getTaskManager();
         long notExistId = 111;
 
-        Optional<EpicTask> actualEpicTask = inMemoryTaskManager.getByIdEpicTask(notExistId);
+        Optional<EpicTask> actualEpicTask = taskManager.getByIdEpicTask(notExistId);
 
         assertThat(actualEpicTask).isEmpty();
     }
@@ -314,9 +307,9 @@ public abstract class TaskManagerTest {
     void addNewTask_ShouldAddNewTask() {
         Task task = new Task("Test Task", "This is a test task");
 
-        inMemoryTaskManager.addNewTask(task);
+        taskManager.addNewTask(task);
 
-        assertThat(inMemoryTaskManager.getTasks()).containsValue(task);
+        assertThat(taskManager.getTasks()).containsValue(task);
     }
 
     @Test
@@ -325,7 +318,7 @@ public abstract class TaskManagerTest {
 
         Exception exception = assertThrows(
                 RuntimeException.class,
-                () -> inMemoryTaskManager.addNewTask(task)
+                () -> taskManager.addNewTask(task)
         );
 
         assertThat(exception).hasMessageMatching("Empty value passed");
@@ -335,9 +328,9 @@ public abstract class TaskManagerTest {
     void addNewEpicTask_ShouldAddNewEpicTask() {
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
 
-        inMemoryTaskManager.addNewEpicTask(epicTask);
+        taskManager.addNewEpicTask(epicTask);
 
-        assertThat(inMemoryTaskManager.getEpicTasks()).containsValue(epicTask);
+        assertThat(taskManager.getEpicTasks()).containsValue(epicTask);
     }
 
     @Test
@@ -346,7 +339,7 @@ public abstract class TaskManagerTest {
 
         Exception exception = assertThrows(
                 RuntimeException.class,
-                () -> inMemoryTaskManager.addNewTask(epicTask)
+                () -> taskManager.addNewTask(epicTask)
         );
 
         assertThat(exception).hasMessageMatching("Empty value passed");
@@ -356,18 +349,18 @@ public abstract class TaskManagerTest {
     void addNewSubTask_ShouldAddNewSubTasksAndAssociateWithEpicTask() {
         LocalDateTime startTime = LocalDateTime.of(2023, 9, 29, 10, 0, 0);
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
-        inMemoryTaskManager.addNewEpicTask(epicTask);
+        taskManager.addNewEpicTask(epicTask);
 
         SubTask subTask = new SubTask("Test SubTask", "This is a test subtask", 60, startTime,
                 epicTask.getId());
-        inMemoryTaskManager.addNewSubTask(subTask);
+        taskManager.addNewSubTask(subTask);
 
         SubTask subTask2 = new SubTask("Test SubTask", "This is a test subtask", 60,
                 startTime.plusMinutes(61), epicTask.getId());
-        inMemoryTaskManager.addNewSubTask(subTask2);
+        taskManager.addNewSubTask(subTask2);
 
-        assertThat(inMemoryTaskManager.getSubTasks()).containsValue(subTask);
-        assertThat(inMemoryTaskManager.getEpicTasks().get(epicTask.getId()).getSubTasksId()).contains(subTask.getId());
+        assertThat(taskManager.getSubTasks()).containsValue(subTask);
+        assertThat(taskManager.getEpicTasks().get(epicTask.getId()).getSubTasksId()).contains(subTask.getId());
         assertThat(epicTask.getEndTime()).isEqualTo(subTask2.getEndTime());
     }
 
@@ -375,19 +368,19 @@ public abstract class TaskManagerTest {
     void addNewSubTask_ShouldAddOnlyFirstSubTaskAndDeclineSecondSubTaskWithCrossTimeParameters() {
         LocalDateTime startTime = LocalDateTime.of(2023, 9, 29, 10, 0, 0);
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
-        inMemoryTaskManager.addNewEpicTask(epicTask);
+        taskManager.addNewEpicTask(epicTask);
 
         SubTask subTask = new SubTask("Test SubTask", "This is a test subtask", 60, startTime,
                 epicTask.getId());
-        inMemoryTaskManager.addNewSubTask(subTask);
+        taskManager.addNewSubTask(subTask);
 
         SubTask subTask2 = new SubTask("Test SubTask", "This is a test subtask", 60,
                 startTime.plusMinutes(60), epicTask.getId());
-        inMemoryTaskManager.addNewSubTask(subTask2);
+        taskManager.addNewSubTask(subTask2);
 
-        assertThat(inMemoryTaskManager.getSubTasks()).containsValue(subTask);
-        assertFalse(inMemoryTaskManager.getSubTasks().containsValue(subTask2));
-        assertThat(inMemoryTaskManager.getEpicTasks().get(epicTask.getId()).getSubTasksId()).contains(subTask.getId());
+        assertThat(taskManager.getSubTasks()).containsValue(subTask);
+        assertFalse(taskManager.getSubTasks().containsValue(subTask2));
+        assertThat(taskManager.getEpicTasks().get(epicTask.getId()).getSubTasksId()).contains(subTask.getId());
         assertThat(epicTask.getEndTime()).isEqualTo(subTask.getEndTime());
     }
 
@@ -397,34 +390,55 @@ public abstract class TaskManagerTest {
 
         Exception exception = assertThrows(
                 RuntimeException.class,
-                () -> inMemoryTaskManager.addNewSubTask(subTask)
+                () -> taskManager.addNewSubTask(subTask)
         );
 
         assertThat(exception).hasMessageMatching("Empty value passed");
     }
 
     @Test
+    void addNewTask_ShouldAddNewTaskBetweenTwoEpicSubTasks() {
+        LocalDateTime startTime = LocalDateTime.of(2023, 10, 6, 10, 0, 0);
+        EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
+        taskManager.addNewEpicTask(epicTask);
+        SubTask subTask = new SubTask("Test SubTask", "This is a test subtask", 60, startTime,
+                epicTask.getId());
+        taskManager.addNewSubTask(subTask);
+        SubTask subTask2 = new SubTask("Test SubTask2", "This is a test subtask2", 60,
+                startTime.plusHours(4), epicTask.getId());
+        taskManager.addNewSubTask(subTask2);
+
+        Task task = new Task("Test Task", "This is a test task", 60, startTime.plusHours(2));
+        taskManager.addNewTask(task);
+
+        assertThat(taskManager.getTasks()).containsValue(task);
+        assertThat(taskManager.getEpicTasks()).containsValue(epicTask);
+        assertThat(taskManager.getSubTasks()).containsValue(subTask);
+        assertThat(taskManager.getSubTasks()).containsValue(subTask2);
+    }
+
+    @Test
     void updateTask_ShouldUpdateExistingTask() {
         Task task = new Task("Test Task", "This is a test task");
-        inMemoryTaskManager.addNewTask(task);
+        taskManager.addNewTask(task);
 
         Task updatedTask = new Task("Updated Task", "This is an updated task");
         updatedTask.setId(task.getId());
 
-        inMemoryTaskManager.updateTask(updatedTask);
+        taskManager.updateTask(updatedTask);
 
-        assertThat(inMemoryTaskManager.getTasks()).containsValue(updatedTask);
+        assertThat(taskManager.getTasks()).containsValue(updatedTask);
     }
 
     @Test
     void updateTask_ShouldThrowExceptionIfTasksIsEmpty() {
         Map<Long, Task> tasks = null;
-        inMemoryTaskManager.setTasks(tasks);
+        taskManager.setTasks(tasks);
         Task updatedTask = new Task("Updated Task", "This is an updated task");
 
         Exception exception = assertThrows(
                 RuntimeException.class,
-                () -> inMemoryTaskManager.updateTask(updatedTask)
+                () -> taskManager.updateTask(updatedTask)
         );
 
         assertThat(exception).hasMessageMatching("Task not found");
@@ -433,14 +447,14 @@ public abstract class TaskManagerTest {
     @Test
     void updateTask_ShouldThrowExceptionIfTasksIsNotExistInMap() {
         Task task = new Task("Test Task", "This is a test task");
-        inMemoryTaskManager.addNewTask(task);
+        taskManager.addNewTask(task);
 
         Task updatedTask = new Task("Updated Task", "This is an updated task");
         updatedTask.setId(111);
 
         Exception exception = assertThrows(
                 RuntimeException.class,
-                () -> inMemoryTaskManager.updateTask(updatedTask)
+                () -> taskManager.updateTask(updatedTask)
         );
 
         assertThat(exception).hasMessageMatching("Task not found");
@@ -449,19 +463,19 @@ public abstract class TaskManagerTest {
     @Test
     void updateSubTask_ShouldUpdateExistingSubTaskAndCheckEpicTaskStatus() {
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
-        inMemoryTaskManager.addNewEpicTask(epicTask);
+        taskManager.addNewEpicTask(epicTask);
 
         SubTask subTask = new SubTask("Test SubTask", "This is a test subtask", epicTask.getId());
-        inMemoryTaskManager.addNewSubTask(subTask);
+        taskManager.addNewSubTask(subTask);
 
         SubTask updatedSubTask = new SubTask("Updated SubTask", "This is an updated subtask", epicTask.getId());
         updatedSubTask.setId(subTask.getId());
         updatedSubTask.setStatus(TaskStatus.IN_PROGRESS);
 
-        inMemoryTaskManager.updateSubTask(updatedSubTask);
+        taskManager.updateSubTask(updatedSubTask);
 
-        assertThat(inMemoryTaskManager.getSubTasks()).containsValue(updatedSubTask);
-        assertThat(inMemoryTaskManager.getEpicTasks().get(epicTask.getId()).getStatus()).isEqualTo(TaskStatus.IN_PROGRESS);
+        assertThat(taskManager.getSubTasks()).containsValue(updatedSubTask);
+        assertThat(taskManager.getEpicTasks().get(epicTask.getId()).getStatus()).isEqualTo(TaskStatus.IN_PROGRESS);
     }
 
     @Test
@@ -472,7 +486,7 @@ public abstract class TaskManagerTest {
 
         Exception exception = assertThrows(
                 RuntimeException.class,
-                () -> inMemoryTaskManager.updateSubTask(updatedSubTask)
+                () -> taskManager.updateSubTask(updatedSubTask)
         );
 
         assertThat(exception).hasMessageMatching("Task not found");
@@ -481,10 +495,10 @@ public abstract class TaskManagerTest {
     @Test
     void updateSubTask_ShouldThrowExceptionIfSubTasksIsNotExistInMap() {
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
-        inMemoryTaskManager.addNewEpicTask(epicTask);
+        taskManager.addNewEpicTask(epicTask);
 
         SubTask subTask = new SubTask("Test SubTask", "This is a test subtask", epicTask.getId());
-        inMemoryTaskManager.addNewSubTask(subTask);
+        taskManager.addNewSubTask(subTask);
 
         SubTask updatedSubTask = new SubTask("Updated SubTask", "This is an updated subtask", epicTask.getId());
         updatedSubTask.setId(1111);
@@ -492,7 +506,7 @@ public abstract class TaskManagerTest {
 
         Exception exception = assertThrows(
                 RuntimeException.class,
-                () -> inMemoryTaskManager.updateSubTask(updatedSubTask)
+                () -> taskManager.updateSubTask(updatedSubTask)
         );
 
         assertThat(exception).hasMessageMatching("Task not found");
@@ -501,14 +515,14 @@ public abstract class TaskManagerTest {
     @Test
     void updateEpicTask_ShouldUpdateExistingEpicTask() {
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
-        inMemoryTaskManager.addNewEpicTask(epicTask);
+        taskManager.addNewEpicTask(epicTask);
 
         EpicTask updatedEpicTask = new EpicTask("Updated Epic Task", "This is an updated epic task");
         updatedEpicTask.setId(epicTask.getId());
 
-        inMemoryTaskManager.updateEpicTask(updatedEpicTask);
+        taskManager.updateEpicTask(updatedEpicTask);
 
-        assertThat(inMemoryTaskManager.getEpicTasks()).containsValue(updatedEpicTask);
+        assertThat(taskManager.getEpicTasks()).containsValue(updatedEpicTask);
     }
 
     @Test
@@ -518,7 +532,7 @@ public abstract class TaskManagerTest {
 
         Exception exception = assertThrows(
                 RuntimeException.class,
-                () -> inMemoryTaskManager.updateEpicTask(updatedEpicTask)
+                () -> taskManager.updateEpicTask(updatedEpicTask)
         );
 
         assertThat(exception).hasMessageMatching("Task not found");
@@ -527,14 +541,14 @@ public abstract class TaskManagerTest {
     @Test
     void updateEpicTask_ShouldThrowExceptionIfEpicTasksIsNotExistInMap() {
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
-        inMemoryTaskManager.addNewEpicTask(epicTask);
+        taskManager.addNewEpicTask(epicTask);
 
         EpicTask updatedEpicTask = new EpicTask("Updated Epic Task", "This is an updated epic task");
         updatedEpicTask.setId(1111);
 
         Exception exception = assertThrows(
                 RuntimeException.class,
-                () -> inMemoryTaskManager.updateEpicTask(updatedEpicTask)
+                () -> taskManager.updateEpicTask(updatedEpicTask)
         );
 
         assertThat(exception).hasMessageMatching("Task not found");
@@ -544,7 +558,7 @@ public abstract class TaskManagerTest {
     void checkStatusEpicTask_ShouldSetStatusToNew_WhenNoSubTasks() {
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
 
-        inMemoryTaskManager.checkStatusEpicTask(epicTask);
+        taskManager.checkStatusEpicTask(epicTask);
 
         assertThat(epicTask.getStatus()).isEqualTo(TaskStatus.NEW);
     }
@@ -552,17 +566,17 @@ public abstract class TaskManagerTest {
     @Test
     void checkStatusEpicTask_ShouldSetStatusToDone_WhenAllSubTasksAreDone() {
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
-        inMemoryTaskManager.addNewEpicTask(epicTask);
+        taskManager.addNewEpicTask(epicTask);
 
         SubTask subTask1 = new SubTask("SubTask 1", "This is subtask 1", epicTask.getId());
         subTask1.setStatus(TaskStatus.DONE);
-        inMemoryTaskManager.addNewSubTask(subTask1);
+        taskManager.addNewSubTask(subTask1);
 
         SubTask subTask2 = new SubTask("SubTask 2", "This is subtask 2", epicTask.getId());
         subTask2.setStatus(TaskStatus.DONE);
-        inMemoryTaskManager.addNewSubTask(subTask2);
+        taskManager.addNewSubTask(subTask2);
 
-        inMemoryTaskManager.checkStatusEpicTask(epicTask);
+        taskManager.checkStatusEpicTask(epicTask);
 
         assertThat(epicTask.getStatus()).isEqualTo(TaskStatus.DONE);
     }
@@ -570,17 +584,17 @@ public abstract class TaskManagerTest {
     @Test
     void checkStatusEpicTask_ShouldSetStatusToInProgress_WhenSomeSubTasksAreInProgress() {
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
-        inMemoryTaskManager.addNewEpicTask(epicTask);
+        taskManager.addNewEpicTask(epicTask);
 
         SubTask subTask1 = new SubTask("SubTask 1", "This is subtask 1", epicTask.getId());
         subTask1.setStatus(TaskStatus.DONE);
-        inMemoryTaskManager.addNewSubTask(subTask1);
+        taskManager.addNewSubTask(subTask1);
 
         SubTask subTask2 = new SubTask("SubTask 2", "This is subtask 2", epicTask.getId());
         subTask2.setStatus(TaskStatus.IN_PROGRESS);
-        inMemoryTaskManager.addNewSubTask(subTask2);
+        taskManager.addNewSubTask(subTask2);
 
-        inMemoryTaskManager.checkStatusEpicTask(epicTask);
+        taskManager.checkStatusEpicTask(epicTask);
 
         assertThat(epicTask.getStatus()).isEqualTo(TaskStatus.IN_PROGRESS);
     }
@@ -588,17 +602,17 @@ public abstract class TaskManagerTest {
     @Test
     void checkStatusEpicTask_ShouldSetStatusToInProgress_WhenSomeSubTasksAreNew() {
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
-        inMemoryTaskManager.addNewEpicTask(epicTask);
+        taskManager.addNewEpicTask(epicTask);
 
         SubTask subTask1 = new SubTask("SubTask 1", "This is subtask 1", epicTask.getId());
         subTask1.setStatus(TaskStatus.DONE);
-        inMemoryTaskManager.addNewSubTask(subTask1);
+        taskManager.addNewSubTask(subTask1);
 
         SubTask subTask2 = new SubTask("SubTask 2", "This is subtask 2", epicTask.getId());
         subTask2.setStatus(TaskStatus.NEW);
-        inMemoryTaskManager.addNewSubTask(subTask2);
+        taskManager.addNewSubTask(subTask2);
 
-        inMemoryTaskManager.checkStatusEpicTask(epicTask);
+        taskManager.checkStatusEpicTask(epicTask);
 
         assertThat(epicTask.getStatus()).isEqualTo(TaskStatus.IN_PROGRESS);
     }
@@ -606,17 +620,17 @@ public abstract class TaskManagerTest {
     @Test
     void checkStatusEpicTask_ShouldSetStatusToInProgress_WhenSomeSubTasksAreNewAndInProgress() {
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
-        inMemoryTaskManager.addNewEpicTask(epicTask);
+        taskManager.addNewEpicTask(epicTask);
 
         SubTask subTask1 = new SubTask("SubTask 1", "This is subtask 1", epicTask.getId());
         subTask1.setStatus(TaskStatus.NEW);
-        inMemoryTaskManager.addNewSubTask(subTask1);
+        taskManager.addNewSubTask(subTask1);
 
         SubTask subTask2 = new SubTask("SubTask 2", "This is subtask 2", epicTask.getId());
         subTask2.setStatus(TaskStatus.IN_PROGRESS);
-        inMemoryTaskManager.addNewSubTask(subTask2);
+        taskManager.addNewSubTask(subTask2);
 
-        inMemoryTaskManager.checkStatusEpicTask(epicTask);
+        taskManager.checkStatusEpicTask(epicTask);
 
         assertThat(epicTask.getStatus()).isEqualTo(TaskStatus.IN_PROGRESS);
     }
@@ -624,11 +638,11 @@ public abstract class TaskManagerTest {
     @Test
     void deleteByIdTask_ShouldRemoveTaskWithMatchingId() {
         Task task = new Task("Test Task", "This is a test task");
-        inMemoryTaskManager.addNewTask(task);
+        taskManager.addNewTask(task);
 
-        inMemoryTaskManager.deleteByIdTask(task.getId());
+        taskManager.deleteByIdTask(task.getId());
 
-        assertThat(inMemoryTaskManager.getTasks()).doesNotContainKey(task.getId());
+        assertThat(taskManager.getTasks()).doesNotContainKey(task.getId());
     }
 
     @Test
@@ -637,7 +651,7 @@ public abstract class TaskManagerTest {
 
         Exception exception = assertThrows(
                 RuntimeException.class,
-                () -> inMemoryTaskManager.deleteByIdTask(task.getId())
+                () -> taskManager.deleteByIdTask(task.getId())
         );
 
         assertThat(exception).hasMessageMatching("Task not found");
@@ -646,12 +660,12 @@ public abstract class TaskManagerTest {
     @Test
     void deleteByIdTask_ShouldThrowExceptionIfTasksIsNotExistTask() {
         Task task = new Task("Test Task", "This is a test task");
-        inMemoryTaskManager.addNewTask(task);
+        taskManager.addNewTask(task);
         long notExistId = 111;
 
         Exception exception = assertThrows(
                 RuntimeException.class,
-                () -> inMemoryTaskManager.deleteByIdTask(notExistId)
+                () -> taskManager.deleteByIdTask(notExistId)
         );
 
         assertThat(exception).hasMessageMatching("Task not found");
@@ -660,26 +674,26 @@ public abstract class TaskManagerTest {
     @Test
     void deleteByIdSubTask_ShouldRemoveSubTaskWithMatchingId() {
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
-        inMemoryTaskManager.addNewEpicTask(epicTask);
+        taskManager.addNewEpicTask(epicTask);
 
         SubTask subTask = new SubTask("Test SubTask", "This is a test subtask", epicTask.getId());
-        inMemoryTaskManager.addNewSubTask(subTask);
+        taskManager.addNewSubTask(subTask);
 
-        inMemoryTaskManager.deleteByIdSubTask(subTask.getId());
+        taskManager.deleteByIdSubTask(subTask.getId());
 
-        assertThat(inMemoryTaskManager.getSubTasks()).doesNotContainKey(subTask.getId());
-        assertThat(inMemoryTaskManager.getEpicTasks().get(epicTask.getId()).getSubTasksId()).doesNotContain(subTask.getId());
+        assertThat(taskManager.getSubTasks()).doesNotContainKey(subTask.getId());
+        assertThat(taskManager.getEpicTasks().get(epicTask.getId()).getSubTasksId()).doesNotContain(subTask.getId());
     }
 
     @Test
     void deleteByIdSubTask_ShouldThrowExceptionIfSubTasksIsEmpty() {
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
-        inMemoryTaskManager.addNewEpicTask(epicTask);
+        taskManager.addNewEpicTask(epicTask);
         SubTask subTask = new SubTask("Test SubTask", "This is a test subtask", epicTask.getId());
 
         Exception exception = assertThrows(
                 RuntimeException.class,
-                () -> inMemoryTaskManager.deleteByIdSubTask(subTask.getId())
+                () -> taskManager.deleteByIdSubTask(subTask.getId())
         );
 
         assertThat(exception).hasMessageMatching("Task not found");
@@ -688,14 +702,14 @@ public abstract class TaskManagerTest {
     @Test
     void deleteByIdSubTask_ShouldThrowExceptionIfSubTasksIsNotExistSubTask() {
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
-        inMemoryTaskManager.addNewEpicTask(epicTask);
+        taskManager.addNewEpicTask(epicTask);
         SubTask subTask = new SubTask("Test SubTask", "This is a test subtask", epicTask.getId());
-        inMemoryTaskManager.addNewSubTask(subTask);
+        taskManager.addNewSubTask(subTask);
         long notExistId = 111;
 
         Exception exception = assertThrows(
                 RuntimeException.class,
-                () -> inMemoryTaskManager.deleteByIdSubTask(notExistId)
+                () -> taskManager.deleteByIdSubTask(notExistId)
         );
 
         assertThat(exception).hasMessageMatching("Task not found");
@@ -704,15 +718,15 @@ public abstract class TaskManagerTest {
     @Test
     void deleteByIdEpicTasks_ShouldRemoveEpicTaskWithMatchingIdAndAssociatedSubTasks() {
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
-        inMemoryTaskManager.addNewEpicTask(epicTask);
+        taskManager.addNewEpicTask(epicTask);
 
         SubTask subTask = new SubTask("Test SubTask", "This is a test subtask", epicTask.getId());
-        inMemoryTaskManager.addNewSubTask(subTask);
+        taskManager.addNewSubTask(subTask);
 
-        inMemoryTaskManager.deleteByIdEpicTasks(epicTask.getId());
+        taskManager.deleteByIdEpicTasks(epicTask.getId());
 
-        assertThat(inMemoryTaskManager.getEpicTasks()).doesNotContainKey(epicTask.getId());
-        assertThat(inMemoryTaskManager.getSubTasks()).doesNotContainKey(subTask.getId());
+        assertThat(taskManager.getEpicTasks()).doesNotContainKey(epicTask.getId());
+        assertThat(taskManager.getSubTasks()).doesNotContainKey(subTask.getId());
     }
 
     @Test
@@ -721,7 +735,7 @@ public abstract class TaskManagerTest {
 
         Exception exception = assertThrows(
                 RuntimeException.class,
-                () -> inMemoryTaskManager.deleteByIdEpicTasks(epicTask.getId())
+                () -> taskManager.deleteByIdEpicTasks(epicTask.getId())
         );
 
         assertThat(exception).hasMessageMatching("Task not found");
@@ -730,15 +744,15 @@ public abstract class TaskManagerTest {
     @Test
     void deleteByIdEpicTasks_ShouldThrowExceptionIfSubTasksIsNotExistEpicTask() {
         EpicTask epicTask = new EpicTask("Test Epic Task", "This is a test epic task");
-        inMemoryTaskManager.addNewEpicTask(epicTask);
+        taskManager.addNewEpicTask(epicTask);
 
         SubTask subTask = new SubTask("Test SubTask", "This is a test subtask", epicTask.getId());
-        inMemoryTaskManager.addNewSubTask(subTask);
+        taskManager.addNewSubTask(subTask);
         long notExistId = 111;
 
         Exception exception = assertThrows(
                 RuntimeException.class,
-                () -> inMemoryTaskManager.deleteByIdEpicTasks(notExistId)
+                () -> taskManager.deleteByIdEpicTasks(notExistId)
         );
 
         assertThat(exception).hasMessageMatching("Task not found");
