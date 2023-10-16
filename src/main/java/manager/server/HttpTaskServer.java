@@ -26,26 +26,18 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class HttpTaskServer {
     public static final int PORT = 8080;
-    private HttpServer httpServer;
-    private HttpTaskManager httpTaskManager;
+    private final HttpServer httpServer;
+    private final HttpTaskManager httpTaskManager;
     private GsonBuilder gsonBuilder = new GsonBuilder()
             .registerTypeAdapter(LocalDateTime.class, (JsonSerializer<LocalDateTime>)
                     (src, typeOfSrc, context) -> new JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
             .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>)
                     (json, typeOfT, context) -> LocalDateTime.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME))
             .serializeNulls();
-    private Gson gson;
-
-    public Gson getGson() {
-        return gson;
-    }
+    private final Gson gson;
 
     public HttpTaskManager getHttpTaskManager() {
         return httpTaskManager;
-    }
-
-    public void setHttpTaskManager(HttpTaskManager httpTaskManager) {
-        this.httpTaskManager = httpTaskManager;
     }
 
     public HttpTaskServer(HttpTaskManager httpTaskManager) throws IOException {
@@ -58,11 +50,11 @@ public class HttpTaskServer {
 
     private void handleTaskRequestsByMethod(HttpExchange exchange) throws IOException {
         String requestMethod = exchange.getRequestMethod();
-        switch (requestMethod) {
-            case "GET" -> handleGetRequestByPath(exchange);
-            case "POST" -> handlePostRequestByPath(exchange);
-            case "PUT" -> handlePutRequestByPath(exchange);
-            case "DELETE" -> handleDeleteRequestByPath(exchange);
+        switch (RequestType.valueOf(requestMethod)) {
+            case GET -> handleGetRequestByPath(exchange);
+            case POST -> handlePostRequestByPath(exchange);
+            case PUT -> handlePutRequestByPath(exchange);
+            case DELETE -> handleDeleteRequestByPath(exchange);
             default -> exchange.sendResponseHeaders(HttpURLConnection.HTTP_BAD_METHOD, 0);
         }
         exchange.close();
@@ -144,7 +136,7 @@ public class HttpTaskServer {
     private void handleGetTaskById(HttpExchange exchange) throws IOException {
         long taskId = Long.parseLong(exchange.getRequestURI().getQuery().substring(3));
         System.out.println(taskId);
-        Optional<? extends Task> task = null;
+        Optional<? extends Task> task = Optional.empty();
         if (httpTaskManager.getTasks().containsKey(taskId)) {
             task = httpTaskManager.getById(taskId);
         } else if (httpTaskManager.getSubTasks().containsKey(taskId)) {
@@ -252,8 +244,8 @@ public class HttpTaskServer {
                 String response = gson.toJson(task);
                 sendText(exchange, response, HttpURLConnection.HTTP_CREATED);
             } catch (RuntimeException e) {
-                System.out.println(e.getMessage());
                 exchange.sendResponseHeaders(HttpURLConnection.HTTP_NO_CONTENT, -1);
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -272,8 +264,8 @@ public class HttpTaskServer {
                 String response = gson.toJson(subtask);
                 sendText(exchange, response, HttpURLConnection.HTTP_CREATED);
             } catch (RuntimeException e) {
-                System.out.println(e.getMessage());
                 exchange.sendResponseHeaders(HttpURLConnection.HTTP_NO_CONTENT, -1);
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -292,8 +284,8 @@ public class HttpTaskServer {
                 String response = gson.toJson(epicTask);
                 sendText(exchange, response, HttpURLConnection.HTTP_CREATED);
             } catch (RuntimeException e) {
-                System.out.println(e.getMessage());
                 exchange.sendResponseHeaders(HttpURLConnection.HTTP_NO_CONTENT, -1);
+                System.out.println(e.getMessage());
             }
         }
     }

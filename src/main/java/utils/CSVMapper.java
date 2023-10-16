@@ -13,6 +13,8 @@ import java.util.Optional;
 
 
 public class CSVMapper {
+    public static final String COLUMN_HEADER = "id,type,name,status,description,duration,start_Time,epic";
+
     private CSVMapper() {
     }
 
@@ -70,11 +72,11 @@ public class CSVMapper {
         try {
             List<String> lines = Files.readAllLines(Paths.get(path));
             if (lines.isEmpty()) {
-                throw new RuntimeException("File is Empty");
-            } else if (lines.get(0).equals("id,type,name,status,description,duration,start_Time,epic")) {
+                throw new NotValidFileException("File is Empty");
+            } else if (lines.get(0).equals(COLUMN_HEADER)) {
                 return lines;
             } else {
-                throw new RuntimeException("Not valid file format");
+                throw new NotValidFileException("Not valid file format");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -106,14 +108,14 @@ public class CSVMapper {
                     task.setStatus(status);
                     task.setDuration(duration);
                     task.setStartTime(startTime);
-                    return Optional.ofNullable(task);
+                    return Optional.of(task);
                 case TASK:
                     task = new Task(name, description);
                     task.setId(id);
                     task.setStatus(status);
                     task.setDuration(duration);
                     task.setStartTime(startTime);
-                    return Optional.ofNullable(task);
+                    return Optional.of(task);
                 case SUBTASK:
                     long idEpic = Long.parseLong(taskAttributes[7]);
                     task = new SubTask(name, description, idEpic);
@@ -121,7 +123,7 @@ public class CSVMapper {
                     task.setStatus(status);
                     task.setDuration(duration);
                     task.setStartTime(startTime);
-                    return Optional.ofNullable(task);
+                    return Optional.of(task);
             }
         }
         return Optional.empty();

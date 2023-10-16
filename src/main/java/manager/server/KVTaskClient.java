@@ -12,13 +12,13 @@ public class KVTaskClient {
     private URI serverUri;
     private String apiToken;
 
-    public KVTaskClient(String serverUri) throws IOException {
+    public KVTaskClient(String serverUri) {
         this.httpClient = HttpClient.newHttpClient();
         this.serverUri = URI.create(serverUri);
         this.apiToken = register();
     }
 
-    private String register() throws IOException {
+    private String register() {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(URL + "register"))
@@ -34,7 +34,7 @@ public class KVTaskClient {
             return response.body();
 
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Не получается сделать запрос");
+            throw new RuntimeException("Не получается сделать запрос" + e.getMessage());
         }
     }
 
@@ -51,7 +51,7 @@ public class KVTaskClient {
                 throw new RuntimeException("Плохой ответ, не 200, а: " + response.statusCode());
             }
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Не получается сделать запрос");
+            throw new RuntimeException("Не получается сделать запрос" + e.getMessage());
         }
     }
 
@@ -72,7 +72,7 @@ public class KVTaskClient {
             }
             return response.body();
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Не получается сделать запрос");
+            throw new RuntimeException("Не получается сделать запрос" + e.getMessage());
         }
     }
 }

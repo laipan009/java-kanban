@@ -13,11 +13,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HttpTaskManager extends FileBackedTasksManager {
-    private KVTaskClient kvTaskClient;
-    private Gson gson;
+import static manager.impl.KeyServerType.*;
 
-    public HttpTaskManager(String serverUrl) throws IOException {
+public class HttpTaskManager extends FileBackedTasksManager {
+    private final KVTaskClient kvTaskClient;
+    private final Gson gson;
+
+    public HttpTaskManager(String serverUrl) {
         super(serverUrl);
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, (JsonSerializer<LocalDateTime>)
@@ -31,10 +33,10 @@ public class HttpTaskManager extends FileBackedTasksManager {
 
     public void restoreState() {
         try {
-            String tasks = kvTaskClient.load("tasks");
-            String subtasks = kvTaskClient.load("subtasks");
-            String epics = kvTaskClient.load("epics");
-            String history = kvTaskClient.load("history");
+            String tasks = kvTaskClient.load(String.valueOf(TASKS));
+            String subtasks = kvTaskClient.load(String.valueOf(SUBTASKS));
+            String epics = kvTaskClient.load(String.valueOf(EPICS));
+            String history = kvTaskClient.load(String.valueOf(HISTORY));
 
             List<Task> tasksList = gson.fromJson(tasks, new TypeToken<ArrayList<Task>>() {
             }.getType());
@@ -67,19 +69,19 @@ public class HttpTaskManager extends FileBackedTasksManager {
                 }.getType()), this);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to save state", e);
+            throw new RuntimeException("Failed to save state" + e.getMessage());
         }
     }
 
     @Override
     public void save() {
         try {
-            kvTaskClient.put("tasks", gson.toJson(getTasks().values()));
-            kvTaskClient.put("subtasks", gson.toJson(getSubTasks().values()));
-            kvTaskClient.put("epics", gson.toJson(getEpicTasks().values()));
-            kvTaskClient.put("history", gson.toJson(historyManager.getHistory()));
+            kvTaskClient.put(String.valueOf(TASKS), gson.toJson(getTasks().values()));
+            kvTaskClient.put(String.valueOf(SUBTASKS), gson.toJson(getSubTasks().values()));
+            kvTaskClient.put(String.valueOf(EPICS), gson.toJson(getEpicTasks().values()));
+            kvTaskClient.put(String.valueOf(HISTORY), gson.toJson(historyManager.getHistory()));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to save state", e);
+            throw new RuntimeException("Failed to save state " + e.getMessage());
         }
     }
 }

@@ -17,25 +17,38 @@ public class CSVMapperTest {
     private SubTask subTask;
     private EpicTask epicTask;
 
-    @BeforeEach
-    public void setup() {
-        task = new Task("Task1", "This is a task");
+    private Task creatTask() {
+        Task task = new Task("Task1", "This is a task");
         task.setId(1);
         task.setStatus(TaskStatus.IN_PROGRESS);
         task.setDuration(60);
         task.setStartTime(LocalDateTime.now());
+        return task;
+    }
 
-        epicTask = new EpicTask("EpicTask1", "This is a epic task");
-        epicTask.setId(2);
-        epicTask.setStatus(TaskStatus.IN_PROGRESS);
-        epicTask.setDuration(30);
-        epicTask.setStartTime(LocalDateTime.now());
-
-        subTask = new SubTask("SubTask1", "This is a subtask", epicTask.getId());
+    private SubTask creatSubTask() {
+        SubTask subTask = new SubTask("SubTask1", "This is a subtask", epicTask.getId());
         subTask.setId(3);
         subTask.setStatus(TaskStatus.IN_PROGRESS);
         subTask.setDuration(30);
         subTask.setStartTime(LocalDateTime.now());
+        return subTask;
+    }
+
+    private EpicTask creatEpic() {
+        EpicTask epicTask = new EpicTask("EpicTask1", "This is a epic task");
+        epicTask.setId(2);
+        epicTask.setStatus(TaskStatus.IN_PROGRESS);
+        epicTask.setDuration(30);
+        epicTask.setStartTime(LocalDateTime.now());
+        return epicTask;
+    }
+
+    @BeforeEach
+    public void setup() {
+        task = creatTask();
+        epicTask = creatEpic();
+        subTask = creatSubTask();
     }
 
     @Test
