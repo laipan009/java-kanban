@@ -34,7 +34,7 @@ public class KVTaskClient {
             return response.body();
 
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Не получается сделать запрос" + e.getMessage());
+            throw new RuntimeException("Не получается сделать запрос " + e.getMessage());
         }
     }
 
@@ -51,7 +51,7 @@ public class KVTaskClient {
                 throw new RuntimeException("Плохой ответ, не 200, а: " + response.statusCode());
             }
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Не получается сделать запрос" + e.getMessage());
+            throw new RuntimeException("Не получается сделать запрос " + e.getMessage());
         }
     }
 
@@ -72,7 +72,7 @@ public class KVTaskClient {
             }
             return response.body();
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Не получается сделать запрос" + e.getMessage());
+            throw new RuntimeException("Не получается сделать запрос " + e.getMessage());
         }
     }
 }

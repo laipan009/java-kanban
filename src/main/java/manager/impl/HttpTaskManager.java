@@ -69,7 +69,7 @@ public class HttpTaskManager extends FileBackedTasksManager {
                 }.getType()), this);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to save state" + e.getMessage());
+            throw new RuntimeException("Failed to save state " + e.getMessage());
         }
     }
 
